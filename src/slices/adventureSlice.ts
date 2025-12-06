@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { Adventure, TurningPoint } from "../types/Adventure";
+import type { Adventure } from "../types/Adventure";
 
 interface AdventureState {
   adventures: Adventure[];

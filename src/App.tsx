@@ -1,5 +1,6 @@
 import { DarkThemeToggle, Navbar, NavbarBrand } from "flowbite-react";
 import { AdventureDropdown } from "./components/AdventureDropdown";
+import { CharacterList } from "./components/CharacterList";
 
 export default function App() {
   return (
@@ -17,20 +18,21 @@ export default function App() {
           <div className="flex items-center">
             <DarkThemeToggle />
           </div>
-          <div className="relative h-full w-full select-none">
-            <img
-              className="absolute right-0 min-w-dvh dark:hidden"
-              alt="Pattern Light"
-              src="/pattern-light.svg"
-            />
-            <img
-              className="absolute right-0 hidden min-w-dvh dark:block"
-              alt="Pattern Dark"
-              src="/pattern-dark.svg"
-            />
-          </div>
         </Navbar>
+        <div className="relative h-full w-full select-none pointer-events-none">
+          <img
+            className="absolute right-0 min-w-dvh dark:hidden"
+            alt="Pattern Light"
+            src="/pattern-light.svg"
+          />
+          <img
+            className="absolute right-0 hidden min-w-dvh dark:block"
+            alt="Pattern Dark"
+            src="/pattern-dark.svg"
+          />
+        </div>
       </div>
+      <CharacterList />
     </main>
   );
 }
