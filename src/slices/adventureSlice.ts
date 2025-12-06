@@ -22,12 +22,31 @@ const initialState: AdventureState = {
   adventures: [initialAdventure],
 };
 
+const generateNewAdventure = (state: AdventureState): Adventure => {
+  const newId = Math.max(0, ...state.adventures.map((adv) => adv.id)) + 1;
+  return {
+    id: newId,
+    title: "",
+    description: "",
+    characters: [],
+    plotLines: [],
+    themes: ["", "", "", "", ""],
+    notes: "",
+    turningPoints: [],
+  };
+};
+
 export const adventureSlice = createSlice({
   name: "adventure",
   initialState,
   reducers: {
     addAdventure: (state, action) => {
       state.adventures.push(action.payload);
+    },
+    newAdventure: (state) => {
+      const adventure = generateNewAdventure(state);
+      state.adventures.push(adventure);
+      state.selectedAdventureId = adventure.id;
     },
     setSelectedAdventure: (state, action) => {
       state.selectedAdventureId = action.payload;
@@ -74,6 +93,7 @@ export const {
   deleteAdventure,
   addTurningPoint,
   updateTurningPoint,
+  newAdventure,
 } = adventureSlice.actions;
 
 export default adventureSlice.reducer;

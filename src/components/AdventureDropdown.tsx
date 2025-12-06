@@ -2,7 +2,7 @@ import type { Adventure } from "../types/Adventure";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store";
-import { setSelectedAdventure } from "../slices/adventureSlice";
+import { setSelectedAdventure, newAdventure } from "../slices/adventureSlice";
 import { Dropdown, DropdownItem } from "flowbite-react";
 
 export const AdventureDropdown: React.FC = () => {
@@ -16,6 +16,10 @@ export const AdventureDropdown: React.FC = () => {
 
   const handleSelect = (adventureId: number) => {
     dispatch(setSelectedAdventure(adventureId));
+  };
+
+  const handleNewAdventure = () => {
+    dispatch(newAdventure());
   };
 
   const selectedAdventure = adventures.find(
@@ -35,6 +39,9 @@ export const AdventureDropdown: React.FC = () => {
           {adventure.title || "Untitled Adventure"}
         </DropdownItem>
       ))}
+      <DropdownItem key={-999} onClick={handleNewAdventure}>
+        + New Adventure
+      </DropdownItem>
     </Dropdown>
   );
 };

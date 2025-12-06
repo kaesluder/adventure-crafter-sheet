@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import adventureReducer, {
   addAdventure,
+  newAdventure,
   updateAdventure,
   deleteAdventure,
   addTurningPoint,
@@ -33,7 +34,7 @@ describe("adventureSlice", () => {
 
   describe("addAdventure", () => {
     it("should add a new adventure to the state", () => {
-      const newAdventure: Adventure = {
+      const adventure: Adventure = {
         id: 2,
         title: "New Adventure",
         description: "A new adventure description",
@@ -44,10 +45,79 @@ describe("adventureSlice", () => {
         turningPoints: [],
       };
 
-      const actual = adventureReducer(initialState, addAdventure(newAdventure));
+      const actual = adventureReducer(initialState, addAdventure(adventure));
 
       expect(actual.adventures).toHaveLength(2);
-      expect(actual.adventures[1]).toEqual(newAdventure);
+      expect(actual.adventures[1]).toEqual(adventure);
+    });
+  });
+
+  describe("newAdventure", () => {
+    it("should create a new adventure with auto-incremented ID", () => {
+      const actual = adventureReducer(initialState, newAdventure());
+
+      expect(actual.adventures).toHaveLength(2);
+      expect(actual.adventures[1].id).toBe(2);
+      expect(actual.adventures[1].title).toBe("");
+      expect(actual.adventures[1].description).toBe("");
+      expect(actual.adventures[1].characters).toEqual([]);
+      expect(actual.adventures[1].plotLines).toEqual([]);
+      expect(actual.adventures[1].themes).toEqual(["", "", "", "", ""]);
+      expect(actual.adventures[1].notes).toBe("");
+      expect(actual.adventures[1].turningPoints).toEqual([]);
+    });
+
+    it("should set the new adventure as selected", () => {
+      const actual = adventureReducer(initialState, newAdventure());
+
+      expect(actual.selectedAdventureId).toBe(2);
+    });
+
+    it("should generate correct ID when adventures have gaps", () => {
+      const stateWithGaps = {
+        selectedAdventureId: null,
+        adventures: [
+          initialState.adventures[0],
+          { ...initialState.adventures[0], id: 5 },
+          { ...initialState.adventures[0], id: 3 },
+        ],
+      };
+
+      const actual = adventureReducer(stateWithGaps, newAdventure());
+
+      expect(actual.adventures).toHaveLength(4);
+      expect(actual.adventures[3].id).toBe(6); // Max ID (5) + 1
+      expect(actual.selectedAdventureId).toBe(6);
+    });
+
+    it("should handle creating multiple new adventures sequentially", () => {
+      let state = adventureReducer(initialState, newAdventure());
+      expect(state.adventures).toHaveLength(2);
+      expect(state.adventures[1].id).toBe(2);
+      expect(state.selectedAdventureId).toBe(2);
+
+      state = adventureReducer(state, newAdventure());
+      expect(state.adventures).toHaveLength(3);
+      expect(state.adventures[2].id).toBe(3);
+      expect(state.selectedAdventureId).toBe(3);
+
+      state = adventureReducer(state, newAdventure());
+      expect(state.adventures).toHaveLength(4);
+      expect(state.adventures[3].id).toBe(4);
+      expect(state.selectedAdventureId).toBe(4);
+    });
+
+    it("should start from ID 1 when adventures array is empty", () => {
+      const emptyState = {
+        selectedAdventureId: null,
+        adventures: [],
+      };
+
+      const actual = adventureReducer(emptyState, newAdventure());
+
+      expect(actual.adventures).toHaveLength(1);
+      expect(actual.adventures[0].id).toBe(1);
+      expect(actual.selectedAdventureId).toBe(1);
     });
   });
 
