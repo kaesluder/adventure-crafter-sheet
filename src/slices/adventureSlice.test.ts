@@ -4,11 +4,13 @@ import adventureReducer, {
   updateAdventure,
   deleteAdventure,
   addTurningPoint,
+  updateTurningPoint,
 } from "./adventureSlice";
-import type { Adventure, TurningPoint } from "../types/Adenture";
+import type { Adventure, TurningPoint } from "../types/Adventure";
 
 describe("adventureSlice", () => {
   const initialState = {
+    selectedAdventureId: null,
     adventures: [
       {
         id: 1,
@@ -64,7 +66,7 @@ describe("adventureSlice", () => {
 
       const actual = adventureReducer(
         initialState,
-        updateAdventure({ id: 1, ...updatedAdventure }),
+        updateAdventure(updatedAdventure),
       );
 
       expect(actual.adventures[0]).toEqual(updatedAdventure);
@@ -84,7 +86,7 @@ describe("adventureSlice", () => {
 
       const actual = adventureReducer(
         initialState,
-        updateAdventure({ id: 999, ...updatedAdventure }),
+        updateAdventure(updatedAdventure),
       );
 
       expect(actual).toEqual(initialState);
@@ -94,6 +96,7 @@ describe("adventureSlice", () => {
   describe("deleteAdventure", () => {
     it("should delete an adventure by id", () => {
       const stateWithMultipleAdventures = {
+        selectedAdventureId: null,
         adventures: [
           initialState.adventures[0],
           {
@@ -195,6 +198,173 @@ describe("adventureSlice", () => {
       expect(state.adventures[0].turningPoints).toHaveLength(2);
       expect(state.adventures[0].turningPoints[0]).toEqual(turningPoint1);
       expect(state.adventures[0].turningPoints[1]).toEqual(turningPoint2);
+    });
+  });
+
+  describe("updateTurningPoint", () => {
+    it("should update an existing turning point", () => {
+      const initialTurningPoint: TurningPoint = {
+        id: 1,
+        title: "Original Event",
+        notes: "Original notes",
+        plotLine: "Original plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint: initialTurningPoint }),
+      );
+
+      const updatedTurningPoint: TurningPoint = {
+        id: 1,
+        title: "Updated Event",
+        notes: "Updated notes",
+        plotLine: "Updated plot",
+        charactersInvolved: ["Hero", "Villain"],
+        plotPoints: ["Point 1", "Point 2", "Point 3"],
+      };
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        updateTurningPoint({
+          adventureId: 1,
+          turningPointId: 1,
+          turningPoint: updatedTurningPoint,
+        }),
+      );
+
+      expect(actual.adventures[0].turningPoints).toHaveLength(1);
+      expect(actual.adventures[0].turningPoints[0]).toEqual(
+        updatedTurningPoint,
+      );
+    });
+
+    it("should not modify state if adventure id is not found", () => {
+      const turningPoint: TurningPoint = {
+        id: 1,
+        title: "Event",
+        notes: "Notes",
+        plotLine: "Plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint }),
+      );
+
+      const updatedTurningPoint: TurningPoint = {
+        id: 1,
+        title: "Updated Event",
+        notes: "Updated notes",
+        plotLine: "Updated plot",
+        charactersInvolved: ["Villain"],
+        plotPoints: ["Point 2"],
+      };
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        updateTurningPoint({
+          adventureId: 999,
+          turningPointId: 1,
+          turningPoint: updatedTurningPoint,
+        }),
+      );
+
+      expect(actual).toEqual(stateWithTurningPoint);
+    });
+
+    it("should not modify state if turning point id is not found", () => {
+      const turningPoint: TurningPoint = {
+        id: 1,
+        title: "Event",
+        notes: "Notes",
+        plotLine: "Plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint }),
+      );
+
+      const updatedTurningPoint: TurningPoint = {
+        id: 999,
+        title: "Updated Event",
+        notes: "Updated notes",
+        plotLine: "Updated plot",
+        charactersInvolved: ["Villain"],
+        plotPoints: ["Point 2"],
+      };
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        updateTurningPoint({
+          adventureId: 1,
+          turningPointId: 999,
+          turningPoint: updatedTurningPoint,
+        }),
+      );
+
+      expect(actual).toEqual(stateWithTurningPoint);
+    });
+
+    it("should update only the specified turning point when multiple exist", () => {
+      const turningPoint1: TurningPoint = {
+        id: 1,
+        title: "Event 1",
+        notes: "First event",
+        plotLine: "Plot A",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const turningPoint2: TurningPoint = {
+        id: 2,
+        title: "Event 2",
+        notes: "Second event",
+        plotLine: "Plot B",
+        charactersInvolved: ["Villain"],
+        plotPoints: ["Point 2"],
+      };
+
+      let state = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint1 }),
+      );
+
+      state = adventureReducer(
+        state,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint2 }),
+      );
+
+      const updatedTurningPoint2: TurningPoint = {
+        id: 2,
+        title: "Updated Event 2",
+        notes: "Updated second event",
+        plotLine: "Updated Plot B",
+        charactersInvolved: ["Villain", "Sidekick"],
+        plotPoints: ["Point 2", "Point 3"],
+      };
+
+      const actual = adventureReducer(
+        state,
+        updateTurningPoint({
+          adventureId: 1,
+          turningPointId: 2,
+          turningPoint: updatedTurningPoint2,
+        }),
+      );
+
+      expect(actual.adventures[0].turningPoints).toHaveLength(2);
+      expect(actual.adventures[0].turningPoints[0]).toEqual(turningPoint1);
+      expect(actual.adventures[0].turningPoints[1]).toEqual(
+        updatedTurningPoint2,
+      );
     });
   });
 });

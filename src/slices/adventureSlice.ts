@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { Adventure, TurningPoint } from "../types/Adenture";
+import type { Adventure, TurningPoint } from "../types/Adventure";
 
 interface AdventureState {
   adventures: Adventure[];
+  selectedAdventureId: number | null;
 }
 
 const initialAdventure: Adventure = {
@@ -17,6 +18,7 @@ const initialAdventure: Adventure = {
 };
 
 const initialState: AdventureState = {
+  selectedAdventureId: null,
   adventures: [initialAdventure],
 };
 
@@ -26,6 +28,9 @@ export const adventureSlice = createSlice({
   reducers: {
     addAdventure: (state, action) => {
       state.adventures.push(action.payload);
+    },
+    setSelectedAdventure: (state, action) => {
+      state.selectedAdventureId = action.payload;
     },
     updateAdventure: (state, action) => {
       const index = state.adventures.findIndex(
@@ -47,14 +52,28 @@ export const adventureSlice = createSlice({
         adventure.turningPoints.push(turningPoint);
       }
     },
+    updateTurningPoint: (state, action) => {
+      const { adventureId, turningPointId, turningPoint } = action.payload;
+      const adventure = state.adventures.find((adv) => adv.id === adventureId);
+      if (adventure) {
+        const tpIndex = adventure.turningPoints.findIndex(
+          (tp) => tp.id === turningPointId,
+        );
+        if (tpIndex !== -1) {
+          adventure.turningPoints[tpIndex] = turningPoint;
+        }
+      }
+    },
   },
 });
 
 export const {
   addAdventure,
+  setSelectedAdventure,
   updateAdventure,
   deleteAdventure,
   addTurningPoint,
+  updateTurningPoint,
 } = adventureSlice.actions;
 
 export default adventureSlice.reducer;
