@@ -7,8 +7,8 @@ import { PlotLineList } from "./components/PlotLineList";
 
 export default function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-24 dark:bg-gray-900">
-      <div className="absolute inset-0 size-full">
+    <main className="flex min-h-screen flex-col bg-white dark:bg-gray-900">
+      <div className="w-full">
         <Navbar fluid>
           <NavbarBrand href="/">
             <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
@@ -22,20 +22,8 @@ export default function App() {
             <DarkThemeToggle />
           </div>
         </Navbar>
-        <div className="pointer-events-none relative h-full w-full select-none">
-          <img
-            className="absolute right-0 min-w-dvh dark:hidden"
-            alt="Pattern Light"
-            src="/pattern-light.svg"
-          />
-          <img
-            className="absolute right-0 hidden min-w-dvh dark:block"
-            alt="Pattern Dark"
-            src="/pattern-dark.svg"
-          />
-        </div>
       </div>
-      <div className="container mx-auto max-w-7xl px-4">
+      <div className="container mx-auto max-w-7xl px-4 py-8 flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AdventureTitle />
           <AdventureDescription />
