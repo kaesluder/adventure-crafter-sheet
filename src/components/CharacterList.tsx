@@ -50,8 +50,8 @@ export const CharacterList: React.FC = () => {
   };
 
   return (
-    <div style={{ marginTop: "1rem", maxWidth: "500px" }}>
-      <div style={{ marginBottom: "0.5rem" }}>
+    <div className="w-full">
+      <div className="mb-2">
         <Label>Characters</Label>
       </div>
       <List>
@@ -59,7 +59,7 @@ export const CharacterList: React.FC = () => {
           <ListItem key={character}>{character}</ListItem>
         ))}
       </List>
-      <div style={{ marginTop: "1rem" }}>
+      <div className="mt-4">
         <TextInput
           placeholder="Add a new character"
           value={newCharacter}
@@ -76,17 +76,7 @@ export const CharacterList: React.FC = () => {
             console.log("Button clicked!");
             handleAddCharacter(e);
           }}
-          style={{
-            marginTop: "0.5rem",
-            padding: "0.5rem 1rem",
-            backgroundColor: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "0.375rem",
-            cursor: "pointer",
-            position: "relative",
-            zIndex: 10,
-          }}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer relative z-10 hover:bg-blue-600"
         >
           Add Character
         </button>

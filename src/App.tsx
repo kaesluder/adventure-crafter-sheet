@@ -35,10 +35,16 @@ export default function App() {
           />
         </div>
       </div>
-      <AdventureTitle />
-      <AdventureDescription />
-      <CharacterList />
-      <PlotLineList />
+      <div className="container mx-auto max-w-7xl px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AdventureTitle />
+          <AdventureDescription />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <CharacterList />
+          <PlotLineList />
+        </div>
+      </div>
     </main>
   );
 }

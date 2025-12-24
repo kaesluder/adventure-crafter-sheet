@@ -33,9 +33,9 @@ export const AdventureDescription: React.FC = () => {
   };
 
   return (
-    <div style={{ marginTop: "1rem", maxWidth: "500px" }}>
-      <div style={{ marginBottom: "0.5rem" }}>
-        <Label htmlFor="adventure-description" value="Adventure Description">
+    <div className="w-full">
+      <div className="mb-2">
+        <Label htmlFor="adventure-description">
           Adventure Description
         </Label>
       </div>

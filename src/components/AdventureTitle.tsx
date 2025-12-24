@@ -31,8 +31,8 @@ export const AdventureTitle: React.FC = () => {
   };
 
   return (
-    <div style={{ marginTop: "1rem", maxWidth: "500px" }}>
-      <div style={{ marginBottom: "0.5rem" }}>
+    <div className="w-full">
+      <div className="mb-2">
         <Label htmlFor="adventure-title">Adventure Title</Label>
       </div>
       <TextInput
