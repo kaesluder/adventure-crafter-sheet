@@ -6,7 +6,7 @@ import type { RootState } from "../store";
 import { updateAdventure } from "../slices/adventureSlice";
 import { Label, List, ListItem, TextInput } from "flowbite-react";
 
-export const CharacterList: React.FC = () => {
+export const PlotLineList: React.FC = () => {
   const adventures: Adventure[] = useSelector(
     (state: RootState) => state.adventure.adventures,
   );
@@ -20,53 +20,53 @@ export const CharacterList: React.FC = () => {
 
   const dispatch = useDispatch();
 
-  const [newCharacter, setNewCharacter] = useState("");
+  const [newPlotLine, setNewPlotLine] = useState("");
 
-  const handleAddCharacter = (e?: React.MouseEvent | React.FormEvent) => {
-    console.log("handleAddCharacter triggered", e?.type);
+  const handleAddPlotLine = (e?: React.MouseEvent | React.FormEvent) => {
+    console.log("handleAddPlotLine triggered", e?.type);
     e?.preventDefault();
     e?.stopPropagation();
 
-    if (newCharacter.trim() === "" || !currentAdventure) {
+    if (newPlotLine.trim() === "" || !currentAdventure) {
       console.log("Early return", {
-        isEmpty: newCharacter.trim() === "",
+        isEmpty: newPlotLine.trim() === "",
         noAdventure: !currentAdventure,
       });
       return;
     }
 
-    const updatedCharacters = [
-      ...currentAdventure.characters,
-      newCharacter.trim(),
+    const updatedPlotLines = [
+      ...currentAdventure.plotLines,
+      newPlotLine.trim(),
     ];
     const updatedAdventure: Adventure = {
       ...currentAdventure,
-      characters: updatedCharacters,
+      plotLines: updatedPlotLines,
     };
 
     console.log("Dispatching update");
     dispatch(updateAdventure(updatedAdventure));
-    setNewCharacter("");
+    setNewPlotLine("");
   };
 
   return (
     <div style={{ marginTop: "1rem", maxWidth: "500px" }}>
       <div style={{ marginBottom: "0.5rem" }}>
-        <Label>Characters</Label>
+        <Label>Plot Lines</Label>
       </div>
       <List>
-        {currentAdventure?.characters.map((character) => (
-          <ListItem key={character}>{character}</ListItem>
+        {currentAdventure?.plotLines.map((plotLine) => (
+          <ListItem key={plotLine}>{plotLine}</ListItem>
         ))}
       </List>
       <div style={{ marginTop: "1rem" }}>
         <TextInput
-          placeholder="Add a new character"
-          value={newCharacter}
-          onChange={(e) => setNewCharacter(e.target.value)}
+          placeholder="Add a new plot line"
+          value={newPlotLine}
+          onChange={(e) => setNewPlotLine(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              handleAddCharacter(e);
+              handleAddPlotLine(e);
             }
           }}
         />
@@ -74,7 +74,7 @@ export const CharacterList: React.FC = () => {
           type="button"
           onClick={(e) => {
             console.log("Button clicked!");
-            handleAddCharacter(e);
+            handleAddPlotLine(e);
           }}
           style={{
             marginTop: "0.5rem",
@@ -88,7 +88,7 @@ export const CharacterList: React.FC = () => {
             zIndex: 10,
           }}
         >
-          Add Character
+          Add Plot Line
         </button>
       </div>
     </div>

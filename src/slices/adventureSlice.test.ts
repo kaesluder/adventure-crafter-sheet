@@ -11,7 +11,7 @@ import type { Adventure, TurningPoint } from "../types/Adventure";
 
 describe("adventureSlice", () => {
   const initialState = {
-    selectedAdventureId: null,
+    selectedAdventureId: 1,
     adventures: [
       {
         id: 1,

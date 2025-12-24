@@ -18,7 +18,7 @@ const initialAdventure: Adventure = {
 };
 
 const initialState: AdventureState = {
-  selectedAdventureId: null,
+  selectedAdventureId: 1,
   adventures: [initialAdventure],
 };
 

@@ -3,6 +3,7 @@ import { screen } from "@testing-library/react";
 import { renderWithProviders, userEvent } from "../test/utils";
 import { CharacterList } from "./CharacterList";
 import type { Adventure } from "../types/Adventure";
+import type { RootState } from "../store";
 
 // Helper function to create mock adventures
 function createMockAdventure(overrides?: Partial<Adventure>): Adventure {
@@ -39,6 +40,13 @@ describe("CharacterList", () => {
     it("should render without crashing", () => {
       const { container } = renderCharacterList([]);
       expect(container).toBeTruthy();
+    });
+
+    it("should display the Characters label", () => {
+      const adventures = [createMockAdventure()];
+      renderCharacterList(adventures, 1);
+
+      expect(screen.getByText("Characters")).toBeInTheDocument();
     });
 
     it("should display the add character input field", () => {
@@ -113,7 +121,7 @@ describe("CharacterList", () => {
       await userEvent.click(button);
 
       // Characters array should still be empty
-      expect(store.getState().adventure.adventures[0].characters).toEqual([]);
+      expect((store.getState() as RootState).adventure.adventures[0].characters).toEqual([]);
     });
   });
 
@@ -128,9 +136,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "New Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("New Hero");
     });
 
@@ -165,9 +172,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Sidekick");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([
         "Hero",
         "Villain",
@@ -187,9 +193,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "New Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([
         "Existing Hero",
         "New Hero",
@@ -206,9 +211,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "  Hero with spaces  ");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("Hero with spaces");
     });
   });
@@ -221,9 +225,8 @@ describe("CharacterList", () => {
       const button = screen.getByText("Add Character");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
     });
 
@@ -237,9 +240,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "   ");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
     });
 
@@ -253,9 +255,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "\t\n  \t");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
     });
   });
@@ -298,9 +299,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Hero-123 (The Great)");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("Hero-123 (The Great)");
     });
 
@@ -315,9 +315,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, longName);
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain(longName);
     });
 
@@ -333,9 +332,8 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = store
-        .getState()
-        .adventure.adventures.find((adv) => adv.id === 1);
+      const updatedAdventure = (store.getState() as RootState)
+        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual(["Hero", "Hero"]);
     });
   });
@@ -354,9 +352,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "My Hero");
       await userEvent.click(button);
 
-      const state = store.getState();
-      const adventure1 = state.adventure.adventures.find((adv) => adv.id === 1);
-      const adventure2 = state.adventure.adventures.find((adv) => adv.id === 2);
+      const state = store.getState() as RootState;
+      const adventure1 = state.adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const adventure2 = state.adventure.adventures.find((adv: Adventure) => adv.id === 2);
 
       expect(adventure1?.characters).toContain("My Hero");
       expect(adventure2?.characters).toEqual(["Other Hero"]);
