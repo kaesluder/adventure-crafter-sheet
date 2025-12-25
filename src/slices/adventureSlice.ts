@@ -60,9 +60,42 @@ export const adventureSlice = createSlice({
       }
     },
     deleteAdventure: (state, action) => {
-      state.adventures = state.adventures.filter(
-        (adv) => adv.id !== action.payload,
+      const adventureToDelete = action.payload;
+      const adventureExists = state.adventures.some(
+        (adv) => adv.id === adventureToDelete,
       );
+
+      // If adventure doesn't exist, don't modify state
+      if (!adventureExists) {
+        return;
+      }
+
+      const isLastAdventure = state.adventures.length === 1;
+      const isDeletingSelected =
+        state.selectedAdventureId === adventureToDelete;
+
+      // If deleting the last adventure, generate new one before removing
+      let newAdventure: Adventure | null = null;
+      if (isLastAdventure) {
+        newAdventure = generateNewAdventure(state);
+      }
+
+      // Remove the adventure
+      state.adventures = state.adventures.filter(
+        (adv) => adv.id !== adventureToDelete,
+      );
+
+      // Handle edge cases
+      if (isLastAdventure && newAdventure) {
+        // Add the new adventure that was generated before deletion
+        state.adventures.push(newAdventure);
+        state.selectedAdventureId = newAdventure.id;
+      } else if (isDeletingSelected) {
+        // Select the next adventure (first one in the remaining list)
+        state.selectedAdventureId =
+          state.adventures.length > 0 ? state.adventures[0].id : null;
+      }
+      // If deleting non-selected adventure, keep selectedAdventureId unchanged
     },
     addTurningPoint: (state, action) => {
       const { adventureId, turningPoint } = action.payload;

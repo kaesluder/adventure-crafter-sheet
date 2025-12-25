@@ -2,12 +2,21 @@ import type { Adventure } from "../types/Adventure";
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../store";
-import { setSelectedAdventure, newAdventure } from "../slices/adventureSlice";
+import {
+  setSelectedAdventure,
+  newAdventure,
+  deleteAdventure,
+} from "../slices/adventureSlice";
 import { Dropdown, DropdownItem } from "flowbite-react";
 import DeleteAdventureModal from "./DeleteAdventureModal";
 
 const TrashIcon: React.FC = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg
+    className="h-4 w-4"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -46,8 +55,7 @@ export const AdventureDropdown: React.FC = () => {
 
   const handleDeleteConfirm = () => {
     if (adventureToDelete !== null) {
-      console.log("Deleting adventure with ID:", adventureToDelete);
-      // Stage 1: Just log and close modal - actual deletion in Stage 3
+      dispatch(deleteAdventure(adventureToDelete));
     }
     setDeleteModalOpen(false);
     setAdventureToDelete(null);
@@ -65,9 +73,8 @@ export const AdventureDropdown: React.FC = () => {
     ? selectedAdventure.title || "Untitled Adventure"
     : "Select Adventure";
 
-  const adventureTitleToDelete = adventures.find(
-    (adv) => adv.id === adventureToDelete,
-  )?.title || "";
+  const adventureTitleToDelete =
+    adventures.find((adv) => adv.id === adventureToDelete)?.title || "";
 
   return (
     <>
@@ -77,11 +84,11 @@ export const AdventureDropdown: React.FC = () => {
             key={adventure.id}
             onClick={() => handleSelect(adventure.id)}
           >
-            <div className="flex items-center justify-between w-full gap-2">
+            <div className="flex w-full items-center justify-between gap-2">
               <span>{adventure.title || "Untitled Adventure"}</span>
               <button
                 onClick={(e) => handleDeleteClick(e, adventure.id)}
-                className="text-red-600 hover:text-red-800 p-1"
+                className="p-1 text-red-600 hover:text-red-800"
                 aria-label={`Delete ${adventure.title || "Untitled Adventure"}`}
               >
                 <TrashIcon />
