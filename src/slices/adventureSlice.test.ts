@@ -196,6 +196,161 @@ describe("adventureSlice", () => {
 
       expect(actual).toEqual(initialState);
     });
+
+    it("should select next adventure when deleting selected adventure (not last)", () => {
+      const stateWithMultipleAdventures = {
+        selectedAdventureId: 2,
+        adventures: [
+          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
+          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
+          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+        ],
+      };
+
+      const actual = adventureReducer(
+        stateWithMultipleAdventures,
+        deleteAdventure(2),
+      );
+
+      expect(actual.adventures).toHaveLength(2);
+      expect(actual.selectedAdventureId).toBe(1); // First remaining adventure
+      expect(actual.adventures.find((adv) => adv.id === 2)).toBeUndefined();
+    });
+
+    it("should keep selectedAdventureId when deleting different adventure", () => {
+      const stateWithMultipleAdventures = {
+        selectedAdventureId: 1,
+        adventures: [
+          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
+          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
+          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+        ],
+      };
+
+      const actual = adventureReducer(
+        stateWithMultipleAdventures,
+        deleteAdventure(2),
+      );
+
+      expect(actual.adventures).toHaveLength(2);
+      expect(actual.selectedAdventureId).toBe(1); // Unchanged
+      expect(actual.adventures.find((adv) => adv.id === 2)).toBeUndefined();
+    });
+
+    it("should create new adventure when deleting last one", () => {
+      const stateWithOneAdventure = {
+        selectedAdventureId: 1,
+        adventures: [{ ...initialState.adventures[0], id: 1 }],
+      };
+
+      const actual = adventureReducer(
+        stateWithOneAdventure,
+        deleteAdventure(1),
+      );
+
+      expect(actual.adventures).toHaveLength(1);
+      expect(actual.adventures[0].id).toBe(2); // New adventure with incremented ID
+      expect(actual.selectedAdventureId).toBe(2);
+      expect(actual.adventures[0].title).toBe("");
+      expect(actual.adventures[0].description).toBe("");
+      expect(actual.adventures[0].characters).toEqual([]);
+      expect(actual.adventures[0].plotLines).toEqual([]);
+      expect(actual.adventures[0].themes).toEqual(["", "", "", "", ""]);
+      expect(actual.adventures[0].notes).toBe("");
+      expect(actual.adventures[0].turningPoints).toEqual([]);
+    });
+
+    it("should create new adventure with correct incremented ID when deleting last one", () => {
+      const stateWithOneAdventure = {
+        selectedAdventureId: 5,
+        adventures: [{ ...initialState.adventures[0], id: 5 }],
+      };
+
+      const actual = adventureReducer(
+        stateWithOneAdventure,
+        deleteAdventure(5),
+      );
+
+      expect(actual.adventures).toHaveLength(1);
+      expect(actual.adventures[0].id).toBe(6); // Max ID (5) + 1
+      expect(actual.selectedAdventureId).toBe(6);
+    });
+
+    it("should select new adventure after deleting last one", () => {
+      const stateWithOneAdventure = {
+        selectedAdventureId: 1,
+        adventures: [{ ...initialState.adventures[0], id: 1 }],
+      };
+
+      const actual = adventureReducer(
+        stateWithOneAdventure,
+        deleteAdventure(1),
+      );
+
+      expect(actual.selectedAdventureId).toBe(actual.adventures[0].id);
+    });
+
+    it("should select first remaining adventure after deleting selected one", () => {
+      const stateWithMultipleAdventures = {
+        selectedAdventureId: 1,
+        adventures: [
+          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
+          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
+          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+        ],
+      };
+
+      const actual = adventureReducer(
+        stateWithMultipleAdventures,
+        deleteAdventure(1),
+      );
+
+      expect(actual.adventures).toHaveLength(2);
+      expect(actual.selectedAdventureId).toBe(2); // First remaining adventure
+    });
+
+    it("should handle deleting adventure at different positions in array", () => {
+      const stateWithMultipleAdventures = {
+        selectedAdventureId: 3,
+        adventures: [
+          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
+          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
+          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+          { ...initialState.adventures[0], id: 4, title: "Adventure 4" },
+        ],
+      };
+
+      // Delete from middle (selected)
+      const actual = adventureReducer(
+        stateWithMultipleAdventures,
+        deleteAdventure(3),
+      );
+
+      expect(actual.adventures).toHaveLength(3);
+      expect(actual.selectedAdventureId).toBe(1); // First remaining
+      expect(actual.adventures.map((adv) => adv.id)).toEqual([1, 2, 4]);
+    });
+
+    it("should handle deleting last adventure in array when it is selected", () => {
+      const stateWithMultipleAdventures = {
+        selectedAdventureId: 4,
+        adventures: [
+          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
+          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
+          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+          { ...initialState.adventures[0], id: 4, title: "Adventure 4" },
+        ],
+      };
+
+      const actual = adventureReducer(
+        stateWithMultipleAdventures,
+        deleteAdventure(4),
+      );
+
+      expect(actual.adventures).toHaveLength(3);
+      expect(actual.selectedAdventureId).toBe(1); // First remaining
+      expect(actual.adventures.map((adv) => adv.id)).toEqual([1, 2, 3]);
+    });
   });
 
   describe("addTurningPoint", () => {
