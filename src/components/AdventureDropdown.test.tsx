@@ -43,7 +43,10 @@ describe("AdventureDropdown", () => {
 
     it('should display "Select Adventure" by default', () => {
       renderDropdown([createMockAdventure()]);
-      expect(screen.getByText("Select Adventure")).toBeInTheDocument();
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      expect(
+        within(dropdown).getByText("Select Adventure"),
+      ).toBeInTheDocument();
     });
 
     it("should render all adventures", async () => {
@@ -54,23 +57,28 @@ describe("AdventureDropdown", () => {
 
       renderDropdown(adventures);
 
+      const dropdown = screen.getByTestId("adventure-dropdown");
+
       // Open dropdown
-      const dropdownButton = screen.getByRole("button");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
       // Verify items appear
-      expect(await screen.findByText("Quest 1")).toBeInTheDocument();
-      expect(screen.getByText("Quest 2")).toBeInTheDocument();
+      expect(await within(dropdown).findByText("Quest 1")).toBeInTheDocument();
+      expect(within(dropdown).getByText("Quest 2")).toBeInTheDocument();
     });
 
     it('should show "Untitled Adventure" for empty titles', async () => {
       const adventures = [createMockAdventure({ id: 1, title: "" })];
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      expect(await screen.findByText("Untitled Adventure")).toBeInTheDocument();
+      expect(
+        await within(dropdown).findByText("Untitled Adventure"),
+      ).toBeInTheDocument();
     });
   });
 

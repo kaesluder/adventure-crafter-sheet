@@ -77,7 +77,7 @@ export const AdventureDropdown: React.FC = () => {
     adventures.find((adv) => adv.id === adventureToDelete)?.title || "";
 
   return (
-    <>
+    <div data-testid="adventure-dropdown">
       <Dropdown label={label} inline>
         {adventures.map((adventure) => (
           <DropdownItem
@@ -106,6 +106,6 @@ export const AdventureDropdown: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
       />
-    </>
+    </div>
   );
 };
