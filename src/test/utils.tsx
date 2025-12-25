@@ -1,5 +1,5 @@
 import { render, type RenderOptions } from "@testing-library/react";
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, type EnhancedStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import adventureReducer from "../slices/adventureSlice";
 
@@ -7,9 +7,12 @@ type RootState = {
   adventure: ReturnType<typeof adventureReducer>;
 };
 
+// Define the store type for tests
+type TestStore = EnhancedStore<RootState>;
+
 interface ExtendedRenderOptions extends Omit<RenderOptions, "wrapper"> {
   preloadedState?: Partial<RootState>;
-  store?: ReturnType<typeof configureStore>;
+  store?: TestStore;
 }
 
 /**
@@ -56,8 +59,8 @@ export function renderWithProviders(
     preloadedState,
     store = configureStore({
       reducer: { adventure: adventureReducer },
-      ...(preloadedState && { preloadedState }),
-    }),
+      ...(preloadedState && { preloadedState: preloadedState as RootState }),
+    }) as TestStore,
     ...renderOptions
   } = extendedRenderOptions;
 
