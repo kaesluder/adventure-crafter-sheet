@@ -24,4 +24,5 @@ dist-ssr
 *.sln
 *.sw?
 CLAUDE.md
-temp/PERSISTENCE_PLAN.md
+temp/
+
