@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { renderWithProviders, userEvent } from "../test/utils";
 import { AdventureDropdown } from "./AdventureDropdown";
 import type { Adventure } from "../types/Adventure";
@@ -87,21 +87,28 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 1, title: "My Quest" })];
       renderDropdown(adventures, 1);
 
-      expect(screen.getByText("My Quest")).toBeInTheDocument();
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      expect(within(dropdown).getByText("My Quest")).toBeInTheDocument();
     });
 
     it('should fall back to "Select Adventure" when null', () => {
       const adventures = [createMockAdventure({ id: 1, title: "Quest" })];
       renderDropdown(adventures, null);
 
-      expect(screen.getByText("Select Adventure")).toBeInTheDocument();
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      expect(
+        within(dropdown).getByText("Select Adventure"),
+      ).toBeInTheDocument();
     });
 
     it("should handle empty title in selected adventure", () => {
       const adventures = [createMockAdventure({ id: 1, title: "" })];
       renderDropdown(adventures, 1);
 
-      expect(screen.getByText("Untitled Adventure")).toBeInTheDocument();
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      expect(
+        within(dropdown).getByText("Untitled Adventure"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -110,10 +117,11 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 2, title: "Quest 1" })];
       const { store } = renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      const item = await screen.findByText("Quest 1");
+      const item = await within(dropdown).findByText("Quest 1");
       await userEvent.click(item);
 
       expect(store.getState().adventure.selectedAdventureId).toBe(2);
@@ -123,10 +131,11 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 5, title: "Quest 5" })];
       const { store } = renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      const item = await screen.findByText("Quest 5");
+      const item = await within(dropdown).findByText("Quest 5");
       await userEvent.click(item);
 
       expect(store.getState().adventure.selectedAdventureId).toBe(5);
@@ -139,17 +148,18 @@ describe("AdventureDropdown", () => {
       ];
       const { store } = renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
 
       // Select first adventure
       await userEvent.click(dropdownButton);
-      const item1 = await screen.findByText("Quest 1");
+      const item1 = await within(dropdown).findByText("Quest 1");
       await userEvent.click(item1);
       expect(store.getState().adventure.selectedAdventureId).toBe(1);
 
       // Select second adventure
       await userEvent.click(dropdownButton);
-      const item2 = await screen.findByText("Quest 2");
+      const item2 = await within(dropdown).findByText("Quest 2");
       await userEvent.click(item2);
       expect(store.getState().adventure.selectedAdventureId).toBe(2);
     });
@@ -158,17 +168,23 @@ describe("AdventureDropdown", () => {
   describe("Edge Cases", () => {
     it("should handle empty adventures array", () => {
       renderDropdown([]);
-      expect(screen.getByText("Select Adventure")).toBeInTheDocument();
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      expect(
+        within(dropdown).getByText("Select Adventure"),
+      ).toBeInTheDocument();
     });
 
     it("should handle single adventure", async () => {
       const adventures = [createMockAdventure({ id: 1, title: "Solo Quest" })];
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      expect(await screen.findByText("Solo Quest")).toBeInTheDocument();
+      expect(
+        await within(dropdown).findByText("Solo Quest"),
+      ).toBeInTheDocument();
     });
 
     it("should handle many adventures", async () => {
@@ -177,12 +193,13 @@ describe("AdventureDropdown", () => {
       );
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
       // Verify first and last
-      expect(await screen.findByText("Quest 1")).toBeInTheDocument();
-      expect(screen.getByText("Quest 10")).toBeInTheDocument();
+      expect(await within(dropdown).findByText("Quest 1")).toBeInTheDocument();
+      expect(within(dropdown).getByText("Quest 10")).toBeInTheDocument();
     });
   });
 
@@ -194,14 +211,15 @@ describe("AdventureDropdown", () => {
       ];
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
       // Wait for dropdown to open
-      await screen.findByText("Quest 1");
+      await within(dropdown).findByText("Quest 1");
 
       // Find all delete buttons (by aria-label)
-      const deleteButtons = screen.getAllByLabelText(/delete/i);
+      const deleteButtons = within(dropdown).getAllByLabelText(/delete/i);
       expect(deleteButtons).toHaveLength(2);
     });
 
@@ -211,15 +229,16 @@ describe("AdventureDropdown", () => {
       ];
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("My Epic Quest");
+      await within(dropdown).findByText("My Epic Quest");
 
-      const deleteButton = screen.getByLabelText(/delete/i);
+      const deleteButton = within(dropdown).getByLabelText(/delete/i);
       await userEvent.click(deleteButton);
 
-      // Modal should open with adventure title
+      // Modal should open with adventure title (modal is outside dropdown scope)
       expect(
         await screen.findByText(
           /Are you sure you want to delete 'My Epic Quest'\?/,
@@ -231,15 +250,17 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 1, title: "Quest 1" })];
       const { store } = renderDropdown(adventures, 1);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Quest 1");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
-      const deleteButton = screen.getByLabelText(/delete/i);
+      const deleteButton = within(dropdown).getByLabelText(/delete/i);
       await userEvent.click(deleteButton);
 
-      // Modal opens
+      // Modal opens (modal is outside dropdown scope)
       const cancelButton = await screen.findByRole("button", {
         name: /cancel/i,
       });
@@ -260,16 +281,18 @@ describe("AdventureDropdown", () => {
       ];
       const { store } = renderDropdown(adventures, 1);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Quest 1");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
       // Click delete on first adventure
-      const deleteButtons = screen.getAllByLabelText(/delete/i);
+      const deleteButtons = within(dropdown).getAllByLabelText(/delete/i);
       await userEvent.click(deleteButtons[0]);
 
-      // Confirm deletion
+      // Confirm deletion (modal is outside dropdown scope)
       const confirmButton = await screen.findByRole("button", {
         name: /^delete$/i,
       });
@@ -288,13 +311,15 @@ describe("AdventureDropdown", () => {
       ];
       const { store } = renderDropdown(adventures, 1);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Quest 2");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
       // Click delete on second adventure (not selected)
-      const deleteButtons = screen.getAllByLabelText(/delete/i);
+      const deleteButtons = within(dropdown).getAllByLabelText(/delete/i);
       await userEvent.click(deleteButtons[1]);
 
       // Selected adventure should remain unchanged
@@ -308,14 +333,17 @@ describe("AdventureDropdown", () => {
       ];
       renderDropdown(adventures, 1);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Quest 1");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
-      const deleteButtons = screen.getAllByLabelText(/delete/i);
+      const deleteButtons = within(dropdown).getAllByLabelText(/delete/i);
       await userEvent.click(deleteButtons[0]);
 
+      // Confirm deletion (modal is outside dropdown scope)
       const confirmButton = await screen.findByRole("button", {
         name: /^delete$/i,
       });
@@ -333,15 +361,18 @@ describe("AdventureDropdown", () => {
       ];
       const { store } = renderDropdown(adventures, 2);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Quest 2");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
       // Delete the selected adventure (Quest 2)
-      const deleteButtons = screen.getAllByLabelText(/delete/i);
+      const deleteButtons = within(dropdown).getAllByLabelText(/delete/i);
       await userEvent.click(deleteButtons[1]); // Quest 2
 
+      // Confirm deletion (modal is outside dropdown scope)
       const confirmButton = await screen.findByRole("button", {
         name: /^delete$/i,
       });
@@ -357,14 +388,16 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 1, title: "" })];
       renderDropdown(adventures);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Untitled Adventure");
+      await within(dropdown).findByText("Untitled Adventure");
 
-      const deleteButton = screen.getByLabelText(/delete/i);
+      const deleteButton = within(dropdown).getByLabelText(/delete/i);
       await userEvent.click(deleteButton);
 
+      // Modal text (modal is outside dropdown scope)
       expect(
         await screen.findByText(
           /Are you sure you want to delete 'Untitled Adventure'\?/,
@@ -376,14 +409,17 @@ describe("AdventureDropdown", () => {
       const adventures = [createMockAdventure({ id: 1, title: "Solo Quest" })];
       const { store } = renderDropdown(adventures, 1);
 
-      const dropdownButton = screen.getByRole("button");
+      const dropdown = screen.getByTestId("adventure-dropdown");
+      const dropdownButton = within(dropdown).getByRole("button");
       await userEvent.click(dropdownButton);
 
-      await screen.findByText("Solo Quest");
+      // Wait for menu to be visible
+      await within(dropdown).findByRole("menu");
 
-      const deleteButton = screen.getByLabelText(/delete/i);
+      const deleteButton = within(dropdown).getByLabelText(/delete/i);
       await userEvent.click(deleteButton);
 
+      // Confirm deletion (modal is outside dropdown scope)
       const confirmButton = await screen.findByRole("button", {
         name: /^delete$/i,
       });
