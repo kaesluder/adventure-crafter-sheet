@@ -4,7 +4,7 @@ export type Adventure = {
   description: string;
   characters: string[];
   plotLines: string[];
-  themes: string[];
+  themes: ThemeValues[];
   notes: string;
   turningPoints: TurningPoint[];
 };
@@ -17,3 +17,10 @@ export type TurningPoint = {
   charactersInvolved: string[];
   plotPoints: string[];
 };
+
+export type ThemeValues =
+  | "tension"
+  | "action"
+  | "mystery"
+  | "social"
+  | "personal";

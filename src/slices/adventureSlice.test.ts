@@ -11,7 +11,7 @@ import type { Adventure, TurningPoint } from "../types/Adventure";
 
 describe("adventureSlice", () => {
   const initialState = {
-    selectedAdventureId: 1,
+    selectedAdventureId: 1 as number | null,
     adventures: [
       {
         id: 1,
@@ -19,10 +19,10 @@ describe("adventureSlice", () => {
         description: "",
         characters: [],
         plotLines: [],
-        themes: ["", "", "", "", ""],
+        themes: ["tension", "action", "mystery", "social", "personal"],
         notes: "",
         turningPoints: [],
-      },
+      } as Adventure,
     ],
   };
 
@@ -40,7 +40,7 @@ describe("adventureSlice", () => {
         description: "A new adventure description",
         characters: ["Hero", "Villain"],
         plotLines: ["Main plot"],
-        themes: ["theme1", "theme2", "theme3", "theme4", "theme5"],
+        themes: ["tension", "action", "mystery", "social", "personal"],
         notes: "Some notes",
         turningPoints: [],
       };
@@ -62,7 +62,13 @@ describe("adventureSlice", () => {
       expect(actual.adventures[1].description).toBe("");
       expect(actual.adventures[1].characters).toEqual([]);
       expect(actual.adventures[1].plotLines).toEqual([]);
-      expect(actual.adventures[1].themes).toEqual(["", "", "", "", ""]);
+      expect(actual.adventures[1].themes).toEqual([
+        "tension",
+        "action",
+        "mystery",
+        "social",
+        "personal",
+      ]);
       expect(actual.adventures[1].notes).toBe("");
       expect(actual.adventures[1].turningPoints).toEqual([]);
     });
@@ -78,8 +84,8 @@ describe("adventureSlice", () => {
         selectedAdventureId: null,
         adventures: [
           initialState.adventures[0],
-          { ...initialState.adventures[0], id: 5 },
-          { ...initialState.adventures[0], id: 3 },
+          { ...initialState.adventures[0], id: 5 } as Adventure,
+          { ...initialState.adventures[0], id: 3 } as Adventure,
         ],
       };
 
@@ -129,7 +135,7 @@ describe("adventureSlice", () => {
         description: "Updated description",
         characters: ["New character"],
         plotLines: ["New plot"],
-        themes: ["new1", "new2", "new3", "new4", "new5"],
+        themes: ["action", "mystery", "tension", "personal", "social"],
         notes: "Updated notes",
         turningPoints: [],
       };
@@ -149,7 +155,7 @@ describe("adventureSlice", () => {
         description: "Should not be added",
         characters: [],
         plotLines: [],
-        themes: ["", "", "", "", ""],
+        themes: ["tension", "action", "mystery", "social", "personal"],
         notes: "",
         turningPoints: [],
       };
@@ -175,10 +181,10 @@ describe("adventureSlice", () => {
             description: "Second adventure",
             characters: [],
             plotLines: [],
-            themes: ["", "", "", "", ""],
+            themes: ["tension", "action", "mystery", "social", "personal"],
             notes: "",
             turningPoints: [],
-          },
+          } as Adventure,
         ],
       };
 
@@ -201,9 +207,21 @@ describe("adventureSlice", () => {
       const stateWithMultipleAdventures = {
         selectedAdventureId: 2,
         adventures: [
-          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
-          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
-          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+          {
+            ...initialState.adventures[0],
+            id: 1,
+            title: "Adventure 1",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 2,
+            title: "Adventure 2",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 3,
+            title: "Adventure 3",
+          } as Adventure,
         ],
       };
 
@@ -221,9 +239,21 @@ describe("adventureSlice", () => {
       const stateWithMultipleAdventures = {
         selectedAdventureId: 1,
         adventures: [
-          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
-          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
-          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+          {
+            ...initialState.adventures[0],
+            id: 1,
+            title: "Adventure 1",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 2,
+            title: "Adventure 2",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 3,
+            title: "Adventure 3",
+          } as Adventure,
         ],
       };
 
@@ -240,7 +270,7 @@ describe("adventureSlice", () => {
     it("should create new adventure when deleting last one", () => {
       const stateWithOneAdventure = {
         selectedAdventureId: 1,
-        adventures: [{ ...initialState.adventures[0], id: 1 }],
+        adventures: [{ ...initialState.adventures[0], id: 1 } as Adventure],
       };
 
       const actual = adventureReducer(
@@ -255,7 +285,13 @@ describe("adventureSlice", () => {
       expect(actual.adventures[0].description).toBe("");
       expect(actual.adventures[0].characters).toEqual([]);
       expect(actual.adventures[0].plotLines).toEqual([]);
-      expect(actual.adventures[0].themes).toEqual(["", "", "", "", ""]);
+      expect(actual.adventures[0].themes).toEqual([
+        "tension",
+        "action",
+        "mystery",
+        "social",
+        "personal",
+      ]);
       expect(actual.adventures[0].notes).toBe("");
       expect(actual.adventures[0].turningPoints).toEqual([]);
     });
@@ -263,7 +299,7 @@ describe("adventureSlice", () => {
     it("should create new adventure with correct incremented ID when deleting last one", () => {
       const stateWithOneAdventure = {
         selectedAdventureId: 5,
-        adventures: [{ ...initialState.adventures[0], id: 5 }],
+        adventures: [{ ...initialState.adventures[0], id: 5 } as Adventure],
       };
 
       const actual = adventureReducer(
@@ -279,7 +315,7 @@ describe("adventureSlice", () => {
     it("should select new adventure after deleting last one", () => {
       const stateWithOneAdventure = {
         selectedAdventureId: 1,
-        adventures: [{ ...initialState.adventures[0], id: 1 }],
+        adventures: [{ ...initialState.adventures[0], id: 1 } as Adventure],
       };
 
       const actual = adventureReducer(
@@ -294,9 +330,21 @@ describe("adventureSlice", () => {
       const stateWithMultipleAdventures = {
         selectedAdventureId: 1,
         adventures: [
-          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
-          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
-          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
+          {
+            ...initialState.adventures[0],
+            id: 1,
+            title: "Adventure 1",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 2,
+            title: "Adventure 2",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 3,
+            title: "Adventure 3",
+          } as Adventure,
         ],
       };
 
@@ -313,10 +361,26 @@ describe("adventureSlice", () => {
       const stateWithMultipleAdventures = {
         selectedAdventureId: 3,
         adventures: [
-          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
-          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
-          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
-          { ...initialState.adventures[0], id: 4, title: "Adventure 4" },
+          {
+            ...initialState.adventures[0],
+            id: 1,
+            title: "Adventure 1",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 2,
+            title: "Adventure 2",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 3,
+            title: "Adventure 3",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 4,
+            title: "Adventure 4",
+          } as Adventure,
         ],
       };
 
@@ -335,10 +399,26 @@ describe("adventureSlice", () => {
       const stateWithMultipleAdventures = {
         selectedAdventureId: 4,
         adventures: [
-          { ...initialState.adventures[0], id: 1, title: "Adventure 1" },
-          { ...initialState.adventures[0], id: 2, title: "Adventure 2" },
-          { ...initialState.adventures[0], id: 3, title: "Adventure 3" },
-          { ...initialState.adventures[0], id: 4, title: "Adventure 4" },
+          {
+            ...initialState.adventures[0],
+            id: 1,
+            title: "Adventure 1",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 2,
+            title: "Adventure 2",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 3,
+            title: "Adventure 3",
+          } as Adventure,
+          {
+            ...initialState.adventures[0],
+            id: 4,
+            title: "Adventure 4",
+          } as Adventure,
         ],
       };
 

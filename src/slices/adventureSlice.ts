@@ -12,7 +12,7 @@ const initialAdventure: Adventure = {
   description: "",
   characters: [],
   plotLines: [],
-  themes: ["", "", "", "", ""],
+  themes: ["tension", "action", "mystery", "social", "personal"],
   notes: "",
   turningPoints: [],
 };
@@ -30,7 +30,7 @@ const generateNewAdventure = (state: AdventureState): Adventure => {
     description: "",
     characters: [],
     plotLines: [],
-    themes: ["", "", "", "", ""],
+    themes: ["tension", "action", "mystery", "social", "personal"],
     notes: "",
     turningPoints: [],
   };
