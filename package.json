@@ -17,9 +17,11 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.0",
+    "array-move": "^4.0.0",
     "flowbite-react": "^0.12.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-easy-sort": "^1.8.0",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0"
   },
