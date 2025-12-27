@@ -24,28 +24,40 @@ function migrateV0toV1(state: unknown): unknown {
 }
 
 /**
- * Example migration for future use:
- * Uncomment and modify when Adventure type schema changes
- *
- * function migrateV1toV2(state: any): any {
- *   // Example: Adding a new field to adventures
- *   if (state.adventure?.adventures) {
- *     state.adventure.adventures = state.adventure.adventures.map((adv: any) => ({
- *       ...adv,
- *       newField: defaultValue,
- *     }));
- *   }
- *   return state;
- * }
+ * Migration from version 1 to version 2
+ * Fixes corrupted themes array (removes empty strings and invalid values)
  */
+function migrateV1toV2(state: any): any {
+  const validThemes = ["tension", "action", "mystery", "social", "personal"];
+
+  if (state.adventure?.adventures) {
+    state.adventure.adventures = state.adventure.adventures.map((adv: any) => {
+      // Filter out empty strings and invalid theme values
+      const cleanedThemes = adv.themes?.filter(
+        (theme: string) => theme && validThemes.includes(theme)
+      ) || [];
+
+      // If themes array is empty or invalid, reset to default
+      const themes = cleanedThemes.length === 0
+        ? ["tension", "action", "mystery", "social", "personal"]
+        : cleanedThemes;
+
+      return {
+        ...adv,
+        themes,
+      };
+    });
+  }
+  return state;
+}
 
 /**
  * Apply all necessary migrations based on stored version
  *
  * @param state - The persisted state to migrate
- * @returns The migrated state
+ * @returns Promise resolving to the migrated state
  */
-export function migrateState(state: unknown): unknown {
+export function migrateState(state: unknown): Promise<PersistedState> {
   const persistedVersion =
     (state as PersistedState)?._persist?.version || 0;
 
@@ -56,10 +68,10 @@ export function migrateState(state: unknown): unknown {
     migratedState = migrateV0toV1(migratedState);
   }
 
-  // Future migrations go here
-  // if (persistedVersion < 2) {
-  //   migratedState = migrateV1toV2(migratedState);
-  // }
+  // Apply migration to fix corrupted themes
+  if (persistedVersion < 2) {
+    migratedState = migrateV1toV2(migratedState);
+  }
 
-  return migratedState;
+  return Promise.resolve(migratedState as PersistedState);
 }

@@ -9,22 +9,14 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
 import { combineReducers } from "@reduxjs/toolkit";
 import adventureReducer from "./slices/adventureSlice";
+import persistConfig from "./utils/persistConfig";
 
 // Create root reducer
 const rootReducer = combineReducers({
   adventure: adventureReducer,
 });
-
-// Persist configuration
-const persistConfig = {
-  key: "root",
-  version: 1,
-  storage,
-  throttle: 1000,
-};
 
 // Wrap root reducer with persistence
 const persistedReducer = persistReducer(persistConfig, rootReducer);

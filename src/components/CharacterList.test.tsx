@@ -13,7 +13,7 @@ function createMockAdventure(overrides?: Partial<Adventure>): Adventure {
     description: "",
     characters: [],
     plotLines: [],
-    themes: ["", "", "", "", ""],
+    themes: ["tension", "action", "mystery", "social", "personal"],
     notes: "",
     turningPoints: [],
     ...overrides,
