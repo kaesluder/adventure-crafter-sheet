@@ -314,6 +314,50 @@ describe("AdventureDescription", () => {
       expect(updatedAdventure?.description).toBe("Line 1\nLine 2\nLine 3");
     });
 
+    it("should escape HTML tags in description", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          description: "<script>alert('xss')</script>",
+        }),
+      ];
+      renderAdventureDescription(adventures, 1);
+
+      const textarea = screen.getByPlaceholderText(
+        "Enter adventure description",
+      );
+
+      // Verify the textarea contains the raw HTML string
+      expect(textarea).toHaveValue("<script>alert('xss')</script>");
+
+      // Verify the HTML is not rendered as actual HTML elements
+      expect(screen.queryByRole("script")).not.toBeInTheDocument();
+      expect(document.querySelector("script")).not.toBeInTheDocument();
+    });
+
+    it("should escape HTML entities in description", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          description: "<img src=x onerror=alert(1)><div>Test</div>",
+        }),
+      ];
+      renderAdventureDescription(adventures, 1);
+
+      const textarea = screen.getByPlaceholderText(
+        "Enter adventure description",
+      );
+
+      // Verify the textarea contains the raw HTML string
+      expect(textarea).toHaveValue(
+        "<img src=x onerror=alert(1)><div>Test</div>",
+      );
+
+      // Verify no img or div elements were created from the description
+      const container = textarea.closest("div");
+      expect(container?.querySelector("img")).not.toBeInTheDocument();
+    });
+
     it("should preserve other adventure properties when updating description", async () => {
       const adventures = [
         createMockAdventure({

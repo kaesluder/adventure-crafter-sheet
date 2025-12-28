@@ -336,6 +336,43 @@ describe("CharacterList", () => {
         .adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual(["Hero", "Hero"]);
     });
+
+    it("should escape HTML tags in character names", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          characters: ["<script>alert('xss')</script>"],
+        }),
+      ];
+      renderCharacterList(adventures, 1);
+
+      // Verify the character name is displayed as text
+      expect(
+        screen.getByText("<script>alert('xss')</script>"),
+      ).toBeInTheDocument();
+
+      // Verify the HTML is not rendered as actual HTML elements
+      expect(screen.queryByRole("script")).not.toBeInTheDocument();
+      expect(document.querySelector("script")).not.toBeInTheDocument();
+    });
+
+    it("should escape HTML entities in character names", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          characters: ["<img src=x onerror=alert(1)>"],
+        }),
+      ];
+      const { container } = renderCharacterList(adventures, 1);
+
+      // Verify the character name is displayed as text
+      expect(
+        screen.getByText("<img src=x onerror=alert(1)>"),
+      ).toBeInTheDocument();
+
+      // Verify no img element was created
+      expect(container.querySelector("img")).not.toBeInTheDocument();
+    });
   });
 
   describe("Multiple Adventures", () => {

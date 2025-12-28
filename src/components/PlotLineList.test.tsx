@@ -347,6 +347,43 @@ describe("PlotLineList", () => {
         .adventure.adventures.find((adv) => adv.id === 1);
       expect(updatedAdventure?.plotLines).toEqual(["Main Quest", "Main Quest"]);
     });
+
+    it("should escape HTML tags in plot line names", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          plotLines: ["<script>alert('xss')</script>"],
+        }),
+      ];
+      renderPlotLineList(adventures, 1);
+
+      // Verify the plot line name is displayed as text
+      expect(
+        screen.getByText("<script>alert('xss')</script>"),
+      ).toBeInTheDocument();
+
+      // Verify the HTML is not rendered as actual HTML elements
+      expect(screen.queryByRole("script")).not.toBeInTheDocument();
+      expect(document.querySelector("script")).not.toBeInTheDocument();
+    });
+
+    it("should escape HTML entities in plot line names", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          plotLines: ["<img src=x onerror=alert(1)>"],
+        }),
+      ];
+      const { container } = renderPlotLineList(adventures, 1);
+
+      // Verify the plot line name is displayed as text
+      expect(
+        screen.getByText("<img src=x onerror=alert(1)>"),
+      ).toBeInTheDocument();
+
+      // Verify no img element was created
+      expect(container.querySelector("img")).not.toBeInTheDocument();
+    });
   });
 
   describe("Multiple Adventures", () => {

@@ -266,6 +266,38 @@ describe("AdventureTitle", () => {
       expect(updatedAdventure?.title).toBe("冒険 🎮 Приключение");
     });
 
+    it("should escape HTML tags in title", async () => {
+      const adventures = [
+        createMockAdventure({ id: 1, title: "<script>alert('xss')</script>" }),
+      ];
+      renderAdventureTitle(adventures, 1);
+
+      const input = screen.getByPlaceholderText("Enter adventure title");
+
+      // Verify the input contains the raw HTML string
+      expect(input).toHaveValue("<script>alert('xss')</script>");
+
+      // Verify the HTML is not rendered as actual HTML elements
+      expect(screen.queryByRole("script")).not.toBeInTheDocument();
+      expect(document.querySelector("script")).not.toBeInTheDocument();
+    });
+
+    it("should escape HTML entities in title", async () => {
+      const adventures = [
+        createMockAdventure({ id: 1, title: "<img src=x onerror=alert(1)>" }),
+      ];
+      renderAdventureTitle(adventures, 1);
+
+      const input = screen.getByPlaceholderText("Enter adventure title");
+
+      // Verify the input contains the raw HTML string
+      expect(input).toHaveValue("<img src=x onerror=alert(1)>");
+
+      // Verify no img element was created
+      const container = input.closest("div");
+      expect(container?.querySelector("img")).not.toBeInTheDocument();
+    });
+
     it("should preserve other adventure properties when updating title", async () => {
       const adventures = [
         createMockAdventure({

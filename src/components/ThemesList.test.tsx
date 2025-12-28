@@ -458,4 +458,41 @@ describe("ThemesList", () => {
       expect(uniqueThemes.size).toBe(themes.length);
     });
   });
+
+  describe("HTML Escaping", () => {
+    it("should properly display theme names without HTML rendering", () => {
+      const adventures = [
+        createMockAdventure({
+          themes: ["tension", "action", "mystery", "social", "personal"],
+        }),
+      ];
+      renderThemesList(adventures, 1);
+
+      // Verify theme names are rendered as text
+      expect(screen.getByText("Tension")).toBeInTheDocument();
+      expect(screen.getByText("Action")).toBeInTheDocument();
+      expect(screen.getByText("Mystery")).toBeInTheDocument();
+      expect(screen.getByText("Social")).toBeInTheDocument();
+      expect(screen.getByText("Personal")).toBeInTheDocument();
+
+      // Verify no unexpected HTML elements are created
+      const container = screen.getByText("Themes").closest("div");
+      expect(container?.querySelector("script")).not.toBeInTheDocument();
+      expect(container?.querySelector("img")).not.toBeInTheDocument();
+    });
+
+    it("should format theme names safely by capitalizing first letter", () => {
+      const adventures = [
+        createMockAdventure({
+          themes: ["tension", "action", "mystery", "social", "personal"],
+        }),
+      ];
+      renderThemesList(adventures, 1);
+
+      // Verify the formatting function properly capitalizes without introducing XSS
+      const tensionElement = screen.getByText("Tension");
+      expect(tensionElement).toBeInTheDocument();
+      expect(tensionElement.textContent).toBe("Tension");
+    });
+  });
 });
