@@ -5,6 +5,7 @@ import { AdventureDescription } from "./components/AdventureDescription";
 import { CharacterList } from "./components/CharacterList";
 import { PlotLineList } from "./components/PlotLineList";
 import { ThemesList } from "./components/ThemesList";
+import { TurningPointCards } from "./components/TurningPointCards";
 
 export default function App() {
   return (
@@ -33,6 +34,9 @@ export default function App() {
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <CharacterList />
           <PlotLineList />
+        </div>
+        <div className="mt-6">
+          <TurningPointCards />
         </div>
       </div>
     </main>
