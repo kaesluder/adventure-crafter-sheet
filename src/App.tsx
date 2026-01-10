@@ -10,16 +10,27 @@ import TurningPointModal from "./components/TurningPointModal";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "./store";
 import type { Adventure, TurningPoint } from "./types/Adventure";
-import { setTurningPointEdit, setSelectedTurningPointId } from "./slices/appStateSlice";
-import { addTurningPoint } from "./slices/adventureSlice";
+import {
+  setTurningPointEdit,
+  setSelectedTurningPointId,
+} from "./slices/appStateSlice";
+import { addTurningPoint, updateTurningPoint } from "./slices/adventureSlice";
 import { getNextTurningPointId } from "./utils/turningPointUtils";
 
 export default function App() {
   const dispatch = useDispatch();
-  const adventures = useSelector((state: RootState) => state.adventure.adventures);
-  const selectedAdventureId = useSelector((state: RootState) => state.adventure.selectedAdventureId);
-  const turningPointEdit = useSelector((state: RootState) => state.appState.turningPointEdit);
-  const selectedTurningPointId = useSelector((state: RootState) => state.appState.selectedTurningPointId);
+  const adventures = useSelector(
+    (state: RootState) => state.adventure.adventures,
+  );
+  const selectedAdventureId = useSelector(
+    (state: RootState) => state.adventure.selectedAdventureId,
+  );
+  const turningPointEdit = useSelector(
+    (state: RootState) => state.appState.turningPointEdit,
+  );
+  const selectedTurningPointId = useSelector(
+    (state: RootState) => state.appState.selectedTurningPointId,
+  );
 
   const currentAdventure = adventures.find(
     (adv: Adventure) => adv.id === selectedAdventureId,
@@ -43,10 +54,12 @@ export default function App() {
       plotPoints: [],
     };
 
-    dispatch(addTurningPoint({
-      adventureId: currentAdventure.id,
-      turningPoint: newTurningPoint,
-    }));
+    dispatch(
+      addTurningPoint({
+        adventureId: currentAdventure.id,
+        turningPoint: newTurningPoint,
+      }),
+    );
     dispatch(setSelectedTurningPointId(newId));
     dispatch(setTurningPointEdit(true));
   };
@@ -56,8 +69,20 @@ export default function App() {
     dispatch(setSelectedTurningPointId(null));
   };
 
+  const handleSaveTurningPoint = (updatedTurningPoint: TurningPoint) => {
+    if (!currentAdventure || !selectedTurningPointId) return;
+
+    dispatch(
+      updateTurningPoint({
+        adventureId: currentAdventure.id,
+        turningPointId: selectedTurningPointId,
+        turningPoint: updatedTurningPoint,
+      }),
+    );
+  };
+
   const selectedTurningPoint = currentAdventure?.turningPoints.find(
-    (tp: TurningPoint) => tp.id === selectedTurningPointId
+    (tp: TurningPoint) => tp.id === selectedTurningPointId,
   );
 
   return (
@@ -88,7 +113,10 @@ export default function App() {
           <PlotLineList />
         </div>
         <div className="mt-6">
-          <TurningPointCards onClick={handleCardClick} onAddNew={handleAddNew} />
+          <TurningPointCards
+            onClick={handleCardClick}
+            onAddNew={handleAddNew}
+          />
         </div>
       </div>
       {turningPointEdit && selectedTurningPoint && (
@@ -96,6 +124,7 @@ export default function App() {
           show={turningPointEdit}
           turningPoint={selectedTurningPoint}
           onClose={handleCloseModal}
+          onSave={handleSaveTurningPoint}
         />
       )}
     </main>
