@@ -6,6 +6,7 @@ import adventureReducer, {
   deleteAdventure,
   addTurningPoint,
   updateTurningPoint,
+  deleteTurningPoint,
 } from "./adventureSlice";
 import type { Adventure, TurningPoint } from "../types/Adventure";
 
@@ -670,6 +671,173 @@ describe("adventureSlice", () => {
       expect(actual.adventures[0].turningPoints[1]).toEqual(
         updatedTurningPoint2,
       );
+    });
+  });
+
+  describe("deleteTurningPoint", () => {
+    it("should delete a turning point from an adventure", () => {
+      const turningPoint1: TurningPoint = {
+        id: 1,
+        title: "Event 1",
+        notes: "First event",
+        plotLine: "Plot A",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const turningPoint2: TurningPoint = {
+        id: 2,
+        title: "Event 2",
+        notes: "Second event",
+        plotLine: "Plot B",
+        charactersInvolved: ["Villain"],
+        plotPoints: ["Point 2"],
+      };
+
+      // Add two turning points first
+      let state = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint1 }),
+      );
+
+      state = adventureReducer(
+        state,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint2 }),
+      );
+
+      // Now delete the first turning point
+      const actual = adventureReducer(
+        state,
+        deleteTurningPoint({ adventureId: 1, turningPointId: 1 }),
+      );
+
+      expect(actual.adventures[0].turningPoints).toHaveLength(1);
+      expect(actual.adventures[0].turningPoints[0]).toEqual(turningPoint2);
+    });
+
+    it("should not modify state if adventure id is not found", () => {
+      const turningPoint: TurningPoint = {
+        id: 1,
+        title: "Event",
+        notes: "Notes",
+        plotLine: "Plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint }),
+      );
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        deleteTurningPoint({ adventureId: 999, turningPointId: 1 }),
+      );
+
+      expect(actual).toEqual(stateWithTurningPoint);
+    });
+
+    it("should not modify state if turning point id is not found", () => {
+      const turningPoint: TurningPoint = {
+        id: 1,
+        title: "Event",
+        notes: "Notes",
+        plotLine: "Plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint }),
+      );
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        deleteTurningPoint({ adventureId: 1, turningPointId: 999 }),
+      );
+
+      expect(actual).toEqual(stateWithTurningPoint);
+    });
+
+    it("should delete only the specified turning point when multiple exist", () => {
+      const turningPoint1: TurningPoint = {
+        id: 1,
+        title: "Event 1",
+        notes: "First event",
+        plotLine: "Plot A",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const turningPoint2: TurningPoint = {
+        id: 2,
+        title: "Event 2",
+        notes: "Second event",
+        plotLine: "Plot B",
+        charactersInvolved: ["Villain"],
+        plotPoints: ["Point 2"],
+      };
+
+      const turningPoint3: TurningPoint = {
+        id: 3,
+        title: "Event 3",
+        notes: "Third event",
+        plotLine: "Plot C",
+        charactersInvolved: ["Sidekick"],
+        plotPoints: ["Point 3"],
+      };
+
+      // Add three turning points
+      let state = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint1 }),
+      );
+
+      state = adventureReducer(
+        state,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint2 }),
+      );
+
+      state = adventureReducer(
+        state,
+        addTurningPoint({ adventureId: 1, turningPoint: turningPoint3 }),
+      );
+
+      // Delete the middle turning point
+      const actual = adventureReducer(
+        state,
+        deleteTurningPoint({ adventureId: 1, turningPointId: 2 }),
+      );
+
+      expect(actual.adventures[0].turningPoints).toHaveLength(2);
+      expect(actual.adventures[0].turningPoints[0]).toEqual(turningPoint1);
+      expect(actual.adventures[0].turningPoints[1]).toEqual(turningPoint3);
+    });
+
+    it("should handle deleting the last turning point", () => {
+      const turningPoint: TurningPoint = {
+        id: 1,
+        title: "Only Event",
+        notes: "Only event",
+        plotLine: "Main Plot",
+        charactersInvolved: ["Hero"],
+        plotPoints: ["Point 1"],
+      };
+
+      const stateWithTurningPoint = adventureReducer(
+        initialState,
+        addTurningPoint({ adventureId: 1, turningPoint }),
+      );
+
+      const actual = adventureReducer(
+        stateWithTurningPoint,
+        deleteTurningPoint({ adventureId: 1, turningPointId: 1 }),
+      );
+
+      expect(actual.adventures[0].turningPoints).toHaveLength(0);
+      expect(actual.adventures[0].turningPoints).toEqual([]);
     });
   });
 });

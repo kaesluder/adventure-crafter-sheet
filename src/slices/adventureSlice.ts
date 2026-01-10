@@ -116,6 +116,15 @@ export const adventureSlice = createSlice({
         }
       }
     },
+    deleteTurningPoint: (state, action) => {
+      const { adventureId, turningPointId } = action.payload;
+      const adventure = state.adventures.find((adv) => adv.id === adventureId);
+      if (adventure) {
+        adventure.turningPoints = adventure.turningPoints.filter(
+          (tp) => tp.id !== turningPointId,
+        );
+      }
+    },
   },
 });
 
@@ -126,6 +135,7 @@ export const {
   deleteAdventure,
   addTurningPoint,
   updateTurningPoint,
+  deleteTurningPoint,
   newAdventure,
 } = adventureSlice.actions;
 

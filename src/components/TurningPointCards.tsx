@@ -20,18 +20,20 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
     (state: RootState) => state.adventure.selectedAdventureId,
   );
 
+  console.log("TurningPointCards re-rendered");
+  console.log("Adventures:", adventures);
+  console.log("Selected adventure ID:", selectedAdventureId);
+
   const currentAdventure = adventures.find(
     (adv) => adv.id === selectedAdventureId,
   );
 
   const turningPoints = currentAdventure?.turningPoints || [];
+  console.log("Turning points to display:", turningPoints);
 
   return (
     <div className="w-full">
-      <div
-        className="flex flex-wrap gap-4"
-        data-testid="turning-point-list"
-      >
+      <div className="flex flex-wrap gap-4" data-testid="turning-point-list">
         {turningPoints.map((tp) => (
           <Card
             key={tp.id}
@@ -57,7 +59,7 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
         type="button"
         data-testid="new-turning-point-button"
         onClick={() => onAddNew?.()}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer hover:bg-blue-600"
+        className="mt-4 cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
       >
         New Turning Point
       </button>
