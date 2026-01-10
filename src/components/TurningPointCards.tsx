@@ -1,4 +1,4 @@
-import type { Adventure } from "../types/Adventure";
+import type { Adventure, TurningPoint } from "../types/Adventure";
 import React from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store";
@@ -28,10 +28,7 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
 
   return (
     <div className="w-full">
-      <div
-        className="flex flex-wrap gap-4"
-        data-testid="turning-point-list"
-      >
+      <div className="flex flex-wrap gap-4" data-testid="turning-point-list">
         {turningPoints.map((tp) => (
           <Card
             key={tp.id}
@@ -57,7 +54,7 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
         type="button"
         data-testid="new-turning-point-button"
         onClick={() => onAddNew?.()}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md cursor-pointer hover:bg-blue-600"
+        className="mt-4 cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
       >
         New Turning Point
       </button>

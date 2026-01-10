@@ -65,7 +65,11 @@ export function renderWithProviders(
   } = extendedRenderOptions;
 
   // Clear localStorage before each render to ensure test isolation
-  if (typeof window !== "undefined" && window.localStorage) {
+  if (
+    typeof window !== "undefined" &&
+    window.localStorage &&
+    typeof window.localStorage.clear === "function"
+  ) {
     window.localStorage.clear();
   }
 
