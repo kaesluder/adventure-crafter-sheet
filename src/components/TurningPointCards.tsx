@@ -34,15 +34,15 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
             key={tp.id}
             data-testid={`turning-point-card-${tp.id}`}
             onClick={() => onClick?.(tp.id)}
-            className="w-64 cursor-pointer hover:bg-gray-50"
+            className="w-64 cursor-pointer hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
           >
-            <h5 className="text-xl font-bold tracking-tight text-gray-900">
+            <h5 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
               {tp.title || "Title"}
             </h5>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {tp.plotLine || "Plot Line"}
             </p>
-            <List>
+            <List className="dark:text-gray-300">
               {tp.plotPoints.map((point, index) => (
                 <ListItem key={index}>{point}</ListItem>
               ))}
@@ -56,7 +56,7 @@ export const TurningPointCards: React.FC<TurningPointCardsProps> = ({
         onClick={() => onAddNew?.()}
         className="mt-4 cursor-pointer rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
       >
-        New Turning Point
+        Add Turning Point
       </button>
     </div>
   );

@@ -65,7 +65,7 @@ export const ThemesList: React.FC = () => {
   return (
     <div className="w-full">
       <div className="mb-2">
-        <Label>Themes</Label>
+        <Label className="dark:text-white">Themes</Label>
       </div>
       <SortableList
         onSortEnd={handleSortEnd}
@@ -74,7 +74,7 @@ export const ThemesList: React.FC = () => {
       >
         {currentAdventure?.themes.map((theme, index) => (
           <SortableItem key={theme + index}>
-            <div className="cursor-move rounded-md bg-gray-100 px-3 py-2 text-sm transition-colors select-none hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600">
+            <div className="cursor-move rounded-md bg-gray-100 px-3 py-2 text-sm text-gray-900 transition-colors select-none hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
               {formatThemeName(theme)}
             </div>
           </SortableItem>

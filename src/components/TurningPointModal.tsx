@@ -3,6 +3,7 @@ import {
   Modal,
   Label,
   TextInput,
+  Textarea,
   ModalHeader,
   ModalBody,
 } from "flowbite-react";
@@ -38,19 +39,6 @@ export default function TurningPointModal({
             />
           </div>
 
-          {/* Notes Field */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-notes">Notes</Label>
-            </div>
-            <TextInput
-              id="turning-point-notes"
-              type="text"
-              value={turningPoint.notes}
-              readOnly
-            />
-          </div>
-
           {/* Plot Line Field */}
           <div>
             <div className="mb-2 block">
@@ -61,6 +49,19 @@ export default function TurningPointModal({
               type="text"
               value={turningPoint.plotLine}
               readOnly
+            />
+          </div>
+
+          {/* Notes Field */}
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="turning-point-notes">Notes</Label>
+            </div>
+            <Textarea
+              id="turning-point-notes"
+              value={turningPoint.notes}
+              readOnly
+              rows={4}
             />
           </div>
         </div>
