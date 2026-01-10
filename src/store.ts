@@ -11,11 +11,13 @@ import {
 } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import adventureReducer from "./slices/adventureSlice";
+import appStateReducer from "./slices/appStateSlice";
 import persistConfig from "./utils/persistConfig";
 
 // Create root reducer
 const rootReducer = combineReducers({
   adventure: adventureReducer,
+  appState: appStateReducer,
 });
 
 // Wrap root reducer with persistence

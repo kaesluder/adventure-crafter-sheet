@@ -26,7 +26,7 @@ describe("TurningPointModal", () => {
   describe("Rendering with mockTurningPoint", () => {
     it("should render title, notes, and plotLine fields with labels and text fields", () => {
       renderWithProviders(
-        <TurningPointModal show={true} turningPoint={mockTurningPoint} />,
+        <TurningPointModal show={true} turningPoint={mockTurningPoint} onClose={() => {}} />,
       );
 
       // Check that title field exists with label and correct value
@@ -52,7 +52,7 @@ describe("TurningPointModal", () => {
   describe("Rendering with mockEmptyTurningPoint", () => {
     it("should render title, notes, and plotLine fields with labels and empty text fields", () => {
       renderWithProviders(
-        <TurningPointModal show={true} turningPoint={mockEmptyTurningPoint} />,
+        <TurningPointModal show={true} turningPoint={mockEmptyTurningPoint} onClose={() => {}} />,
       );
 
       // Check that title field exists with label and empty value

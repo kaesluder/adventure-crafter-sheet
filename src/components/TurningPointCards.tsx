@@ -1,4 +1,4 @@
-import type { Adventure, TurningPoint } from "../types/Adventure";
+import type { Adventure } from "../types/Adventure";
 import React from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store";

@@ -1,4 +1,3 @@
-import React from "react";
 import type { TurningPoint } from "../types/Adventure";
 import {
   Modal,
@@ -11,16 +10,18 @@ import {
 interface TurningPointModalProps {
   show: boolean;
   turningPoint: TurningPoint;
+  onClose: () => void;
 }
 
 export default function TurningPointModal({
   show,
   turningPoint,
+  onClose,
 }: TurningPointModalProps) {
   if (!show) return null;
 
   return (
-    <Modal show={show} onClose={() => {}}>
+    <Modal show={show} onClose={onClose}>
       <ModalHeader>Turning Point Details</ModalHeader>
       <ModalBody>
         <div className="space-y-4">
