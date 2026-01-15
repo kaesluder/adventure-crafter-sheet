@@ -506,6 +506,331 @@ describe("TurningPointModal", () => {
     });
   });
 
+  describe("Plot Points Display Tests", () => {
+    describe("Test Case 1: View turning point plotPoints", () => {
+      const mockTurningPointWithPlotPoints: TurningPoint = {
+        id: 4,
+        title: "title",
+        notes: "notes",
+        plotLine: "plotLine",
+        charactersInvolved: [],
+        plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
+      };
+
+      it("should display the correct list of plotPoints", () => {
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPointWithPlotPoints}
+            onClose={() => {}}
+            onSave={() => {}}
+          />,
+        );
+
+        // Check that the plotPoints list is rendered
+        const plotPointsList = screen.getByTestId("plot-points-list");
+        expect(plotPointsList).toBeInTheDocument();
+
+        // Check that all plotPoints are displayed
+        expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
+        expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
+        expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
+      });
+
+      it("should show the 'Add Plot Point' text input", () => {
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={() => {}}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+        expect(addPlotPointInput).toBeInTheDocument();
+        expect(addPlotPointInput).toBeEnabled();
+      });
+    });
+
+    describe("Test Case 2: Add plotPoint to turning point", () => {
+      it("should add plotPoint by clicking elsewhere on the form", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Type a new plotPoint name
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "New Plot Point" },
+        });
+
+        // Click elsewhere to trigger addition
+        fireEvent.blur(addPlotPointInput);
+
+        // Verify that the new plotPoint appears in the plotPoints list
+        expect(screen.getByText("New Plot Point")).toBeInTheDocument();
+
+        // Check that the input field clears after successful addition
+        expect(addPlotPointInput).toHaveValue("");
+
+        // Verify save was called with updated plotPoints
+        expect(mockSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            plotPoints: ["New Plot Point"],
+          }),
+        );
+      });
+
+      it("should add plotPoint by pressing Enter key", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Type a new plotPoint name
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Another Plot Point" },
+        });
+
+        // Press Enter to trigger addition
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        // Verify that the new plotPoint appears in the plotPoints list
+        expect(screen.getByText("Another Plot Point")).toBeInTheDocument();
+
+        // Check that the input field clears after successful addition
+        expect(addPlotPointInput).toHaveValue("");
+
+        // Verify save was called with updated plotPoints
+        expect(mockSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            plotPoints: ["Another Plot Point"],
+          }),
+        );
+      });
+    });
+
+    describe("Test Case 3: Prevent duplicate plotPoints", () => {
+      const mockTurningPointWithPlotPoints: TurningPoint = {
+        id: 5,
+        title: "title",
+        notes: "notes",
+        plotLine: "plotLine",
+        charactersInvolved: [],
+        plotPoints: ["Existing Plot Point"],
+      };
+
+      it("should not add duplicate plotPoint", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPointWithPlotPoints}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Try to add a plotPoint that already exists
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Existing Plot Point" },
+        });
+
+        // Click elsewhere to trigger addition
+        fireEvent.blur(addPlotPointInput);
+
+        // Verify that the duplicate plotPoint is not added
+        const plotPointItems = screen.getAllByText("Existing Plot Point");
+        expect(plotPointItems).toHaveLength(1); // Only the original one
+
+        // Verify save was not called
+        expect(mockSave).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Test Case 4: Prevent whitespace-only strings", () => {
+      it("should not add whitespace-only strings", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Try to add only spaces
+        fireEvent.change(addPlotPointInput, { target: { value: "   " } });
+
+        // Trigger the blur event to test the validation
+        fireEvent.blur(addPlotPointInput);
+
+        // Verify that whitespace-only strings are not added
+        expect(screen.queryByText("   ")).not.toBeInTheDocument();
+
+        // Verify save was not called
+        expect(mockSave).not.toHaveBeenCalled();
+      });
+
+      it("should not add strings with only tabs", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Try to add only tabs
+        fireEvent.change(addPlotPointInput, { target: { value: "\t\t" } });
+
+        // Trigger blur event to attempt addition
+        fireEvent.blur(addPlotPointInput);
+
+        // Verify that tab-only strings are not added
+        expect(screen.queryByText("\t\t")).not.toBeInTheDocument();
+
+        // Verify save was not called
+        expect(mockSave).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("Edge Cases", () => {
+      it("should handle plotPoints with special characters correctly", () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Add plotPoint with special characters using fireEvent for more reliable testing
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Plot-Point-1" },
+        });
+
+        // Press Enter to trigger addition using fireEvent
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        // Verify that special characters are handled correctly
+        expect(screen.getByText("Plot-Point-1")).toBeInTheDocument();
+
+        expect(mockSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            plotPoints: ["Plot-Point-1"],
+          }),
+        );
+      });
+
+      it("should handle very long plotPoints", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Create a very long plotPoint name
+        const longPlotPoint = "Very Long Plot Point Name " + "X".repeat(100);
+
+        fireEvent.change(addPlotPointInput, {
+          target: { value: longPlotPoint },
+        });
+
+        // Press Enter to trigger addition
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        // Verify that long names are displayed properly
+        expect(screen.getByText(longPlotPoint)).toBeInTheDocument();
+
+        expect(mockSave).toHaveBeenCalledWith(
+          expect.objectContaining({
+            plotPoints: [longPlotPoint],
+          }),
+        );
+      });
+
+      it("should handle quickly adding multiple plotPoints in succession", async () => {
+        const mockSave = vi.fn();
+        renderWithProviders(
+          <TurningPointModal
+            show={true}
+            turningPoint={mockTurningPoint}
+            onClose={() => {}}
+            onSave={mockSave}
+          />,
+        );
+
+        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+        // Quickly add multiple plotPoints
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Plot Point 1" },
+        });
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Plot Point 2" },
+        });
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        fireEvent.change(addPlotPointInput, {
+          target: { value: "Plot Point 3" },
+        });
+        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+        // Verify that all plotPoints are added correctly
+        expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
+        expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
+        expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
+
+        // Verify save was called multiple times with correct data
+        expect(mockSave).toHaveBeenCalledTimes(3);
+
+        // Check final state
+        expect(mockSave).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
+          }),
+        );
+      });
+    });
+  });
+
   describe("Character List Display Tests", () => {
     describe("Test Case 1: View turning point characters", () => {
       it("should display the correct list of characters", () => {

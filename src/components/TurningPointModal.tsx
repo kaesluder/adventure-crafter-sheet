@@ -26,6 +26,7 @@ export default function TurningPointModal({
   const [localTurningPoint, setLocalTurningPoint] =
     useState<TurningPoint>(turningPoint);
   const [newCharacter, setNewCharacter] = useState("");
+  const [newPlotPoint, setNewPlotPoint] = useState("");
   const [showAutoComplete, setShowAutoComplete] = useState(false);
   const [filteredCharacters, setFilteredCharacters] = useState<string[]>([]);
 
@@ -123,6 +124,38 @@ export default function TurningPointModal({
     setLocalTurningPoint(updatedTurningPoint);
     setNewCharacter("");
     setShowAutoComplete(false);
+
+    // Save the updated turning point
+    onSave(updatedTurningPoint);
+  };
+
+  const handleAddPlotPoint = () => {
+    const trimmedPlotPoint = newPlotPoint.trim();
+
+    // Validate input
+    if (!trimmedPlotPoint) {
+      // Keep focus on input for correction
+      return;
+    }
+
+    // Check for duplicates
+    if (localTurningPoint.plotPoints.includes(trimmedPlotPoint)) {
+      setNewPlotPoint("");
+      return;
+    }
+
+    // Add plotPoint
+    const updatedPlotPoints = [
+      ...localTurningPoint.plotPoints,
+      trimmedPlotPoint,
+    ];
+    const updatedTurningPoint = {
+      ...localTurningPoint,
+      plotPoints: updatedPlotPoints,
+    };
+
+    setLocalTurningPoint(updatedTurningPoint);
+    setNewPlotPoint("");
 
     // Save the updated turning point
     onSave(updatedTurningPoint);
@@ -285,6 +318,44 @@ export default function TurningPointModal({
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Plot Points */}
+          <div>
+            <div className="mb-2 block">
+              <Label htmlFor="turning-point-plotpoints">Plot Points</Label>
+            </div>
+            <div data-testid="plot-points-list" className="mb-4">
+              {localTurningPoint.plotPoints.map((plotPoint, index) => (
+                <div
+                  key={index}
+                  data-testid={`plot-point-${plotPoint}`}
+                  className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                >
+                  {plotPoint}
+                </div>
+              ))}
+            </div>
+
+            {/* Add Plot Point Input */}
+            <div className="relative">
+              <Label htmlFor="add-plot-point-input" className="mb-2 block">
+                Add Plot Point
+              </Label>
+              <TextInput
+                id="add-plot-point-input"
+                type="text"
+                value={newPlotPoint}
+                onChange={(e) => setNewPlotPoint(e.target.value)}
+                onBlur={() => handleAddPlotPoint()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddPlotPoint();
+                  }
+                }}
+                placeholder="Type plot point..."
+              />
             </div>
           </div>
         </div>
