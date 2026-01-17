@@ -267,6 +267,63 @@ describe("PlotLineList", () => {
     });
   });
 
+  describe("Deleting Plot Lines", () => {
+    it("should display delete button next to each plot line", () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          plotLines: ["Plotline 1", "Plotline 2"],
+        }),
+      ];
+      renderPlotLineList(adventures, 1);
+
+      // Find delete buttons by aria-label
+      expect(screen.getByLabelText("Delete Plotline 1")).toBeInTheDocument();
+      expect(screen.getByLabelText("Delete Plotline 2")).toBeInTheDocument();
+    });
+
+    it("should remove plot line from adventure state when delete button is clicked", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          plotLines: ["Plotline 1", "Plotline 2", "Plotline 3"],
+        }),
+      ];
+      const { store } = renderPlotLineList(adventures, 1);
+
+      // Click delete button for "Plotline 2"
+      const deleteButton = screen.getByLabelText("Delete Plotline 2");
+      await userEvent.click(deleteButton);
+
+      const updatedAdventure = store
+        .getState()
+        .adventure.adventures.find((adv) => adv.id === 1);
+      expect(updatedAdventure?.plotLines).toEqual(["Plotline 1", "Plotline 3"]);
+      expect(updatedAdventure?.plotLines).not.toContain("Plotline 2");
+    });
+
+    it("should reduce plot lines list length by one after deletion", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          plotLines: ["Plotline 1", "Plotline 2"],
+        }),
+      ];
+      const { store } = renderPlotLineList(adventures, 1);
+
+      expect(store.getState().adventure.adventures[0].plotLines).toHaveLength(
+        2,
+      );
+
+      const deleteButton = screen.getByLabelText("Delete Plotline 1");
+      await userEvent.click(deleteButton);
+
+      expect(store.getState().adventure.adventures[0].plotLines).toHaveLength(
+        1,
+      );
+    });
+  });
+
   describe("Edge Cases", () => {
     it("should handle empty adventures array", () => {
       const { container } = renderPlotLineList([], null);

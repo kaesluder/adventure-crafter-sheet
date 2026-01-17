@@ -102,9 +102,7 @@ describe("CharacterList", () => {
     });
 
     it("should not display any characters when no adventure selected", () => {
-      const adventures = [
-        createMockAdventure({ id: 1, characters: ["Hero"] }),
-      ];
+      const adventures = [createMockAdventure({ id: 1, characters: ["Hero"] })];
       renderCharacterList(adventures, null);
 
       expect(screen.queryByText("Hero")).not.toBeInTheDocument();
@@ -121,7 +119,9 @@ describe("CharacterList", () => {
       await userEvent.click(button);
 
       // Characters array should still be empty
-      expect((store.getState() as RootState).adventure.adventures[0].characters).toEqual([]);
+      expect(
+        (store.getState() as RootState).adventure.adventures[0].characters,
+      ).toEqual([]);
     });
   });
 
@@ -136,8 +136,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "New Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("New Hero");
     });
 
@@ -172,8 +173,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Sidekick");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([
         "Hero",
         "Villain",
@@ -193,8 +195,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "New Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([
         "Existing Hero",
         "New Hero",
@@ -211,8 +214,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "  Hero with spaces  ");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("Hero with spaces");
     });
   });
@@ -225,8 +229,9 @@ describe("CharacterList", () => {
       const button = screen.getByText("Add Character");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
     });
 
@@ -240,8 +245,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "   ");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
     });
 
@@ -255,9 +261,67 @@ describe("CharacterList", () => {
       await userEvent.type(input, "\t\n  \t");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual([]);
+    });
+  });
+
+  describe("Deleting Characters", () => {
+    it("should display delete button next to each character", () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          characters: ["Hero", "Villain"],
+        }),
+      ];
+      renderCharacterList(adventures, 1);
+
+      // Find delete buttons by aria-label
+      expect(screen.getByLabelText("Delete Hero")).toBeInTheDocument();
+      expect(screen.getByLabelText("Delete Villain")).toBeInTheDocument();
+    });
+
+    it("should remove character from adventure state when delete button is clicked", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          characters: ["Hero", "Villain", "Sidekick"],
+        }),
+      ];
+      const { store } = renderCharacterList(adventures, 1);
+
+      // Click delete button for "Villain"
+      const deleteButton = screen.getByLabelText("Delete Villain");
+      await userEvent.click(deleteButton);
+
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      expect(updatedAdventure?.characters).toEqual(["Hero", "Sidekick"]);
+      expect(updatedAdventure?.characters).not.toContain("Villain");
+    });
+
+    it("should reduce characters list length by one after deletion", async () => {
+      const adventures = [
+        createMockAdventure({
+          id: 1,
+          characters: ["Hero", "Villain"],
+        }),
+      ];
+      const { store } = renderCharacterList(adventures, 1);
+
+      expect(
+        (store.getState() as RootState).adventure.adventures[0].characters,
+      ).toHaveLength(2);
+
+      const deleteButton = screen.getByLabelText("Delete Hero");
+      await userEvent.click(deleteButton);
+
+      expect(
+        (store.getState() as RootState).adventure.adventures[0].characters,
+      ).toHaveLength(1);
     });
   });
 
@@ -299,8 +363,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Hero-123 (The Great)");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain("Hero-123 (The Great)");
     });
 
@@ -315,15 +380,14 @@ describe("CharacterList", () => {
       await userEvent.type(input, longName);
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toContain(longName);
     });
 
     it("should allow duplicate character names", async () => {
-      const adventures = [
-        createMockAdventure({ id: 1, characters: ["Hero"] }),
-      ];
+      const adventures = [createMockAdventure({ id: 1, characters: ["Hero"] })];
       const { store } = renderCharacterList(adventures, 1);
 
       const input = screen.getByPlaceholderText("Add a new character");
@@ -332,8 +396,9 @@ describe("CharacterList", () => {
       await userEvent.type(input, "Hero");
       await userEvent.click(button);
 
-      const updatedAdventure = (store.getState() as RootState)
-        .adventure.adventures.find((adv: Adventure) => adv.id === 1);
+      const updatedAdventure = (
+        store.getState() as RootState
+      ).adventure.adventures.find((adv: Adventure) => adv.id === 1);
       expect(updatedAdventure?.characters).toEqual(["Hero", "Hero"]);
     });
 
@@ -390,8 +455,12 @@ describe("CharacterList", () => {
       await userEvent.click(button);
 
       const state = store.getState() as RootState;
-      const adventure1 = state.adventure.adventures.find((adv: Adventure) => adv.id === 1);
-      const adventure2 = state.adventure.adventures.find((adv: Adventure) => adv.id === 2);
+      const adventure1 = state.adventure.adventures.find(
+        (adv: Adventure) => adv.id === 1,
+      );
+      const adventure2 = state.adventure.adventures.find(
+        (adv: Adventure) => adv.id === 2,
+      );
 
       expect(adventure1?.characters).toContain("My Hero");
       expect(adventure2?.characters).toEqual(["Other Hero"]);
