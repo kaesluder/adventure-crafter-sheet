@@ -6,9 +6,11 @@ import {
   Textarea,
   ModalHeader,
   ModalBody,
+  ModalFooter,
 } from "flowbite-react";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { deleteTurningPoint } from "../slices/adventureSlice";
 
 interface TurningPointModalProps {
   show: boolean;
@@ -23,12 +25,15 @@ export default function TurningPointModal({
   onClose,
   onSave,
 }: TurningPointModalProps) {
+  const dispatch = useDispatch();
   const [localTurningPoint, setLocalTurningPoint] =
     useState<TurningPoint>(turningPoint);
   const [newCharacter, setNewCharacter] = useState("");
   const [newPlotPoint, setNewPlotPoint] = useState("");
   const [showAutoComplete, setShowAutoComplete] = useState(false);
   const [filteredCharacters, setFilteredCharacters] = useState<string[]>([]);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
   // Get adventure data from Redux store
   const adventure = useSelector(
@@ -194,172 +199,269 @@ export default function TurningPointModal({
     onSave(updatedTurningPoint);
   };
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirmation(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (adventure && turningPoint.id) {
+      dispatch(
+        deleteTurningPoint({
+          adventureId: adventure.id,
+          turningPointId: turningPoint.id,
+        }),
+      );
+    }
+    setShowDeleteConfirmation(false);
+    onClose();
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeleteConfirmation(false);
+    // Return focus to delete button after state update
+    setTimeout(() => {
+      deleteButtonRef.current?.focus();
+    }, 0);
+  };
+
+  // Handle Escape key to close confirmation dialog
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && showDeleteConfirmation) {
+        handleCancelDelete();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showDeleteConfirmation]);
+
   if (!show) return null;
 
   return (
-    <Modal show={show} onClose={onClose}>
-      <ModalHeader>Turning Point Details</ModalHeader>
-      <ModalBody>
-        <div className="space-y-4">
-          {/* Title Field */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-title">Title</Label>
-            </div>
-            <TextInput
-              id="turning-point-title"
-              type="text"
-              value={localTurningPoint.title}
-              onChange={(e) => handleFieldChange("title", e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* Plot Line Field */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-plotline">Plot Line</Label>
-            </div>
-            <TextInput
-              id="turning-point-plotline"
-              type="text"
-              value={localTurningPoint.plotLine}
-              onChange={(e) => handleFieldChange("plotLine", e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
-          </div>
-
-          {/* Notes Field */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-notes">Notes</Label>
-            </div>
-            <Textarea
-              id="turning-point-notes"
-              value={localTurningPoint.notes}
-              onChange={(e) => handleFieldChange("notes", e.target.value)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              rows={4}
-            />
-          </div>
-
-          {/* Characters Involved */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-characters">
-                Characters Involved
-              </Label>
-            </div>
-            <div data-testid="characters-involved-list" className="mb-4">
-              {localTurningPoint.charactersInvolved.map((character, index) => (
-                <div
-                  key={index}
-                  data-testid={`character-${character}`}
-                  className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                >
-                  {character}
-                </div>
-              ))}
-            </div>
-
-            {/* Add Character Input */}
-            <div className="relative">
-              <Label htmlFor="add-character-input" className="mb-2 block">
-                Add Character
-              </Label>
+    <div data-testid="turning-point-modal">
+      <Modal show={show} onClose={onClose}>
+        <ModalHeader>Turning Point Details</ModalHeader>
+        <ModalBody>
+          <div className="space-y-4">
+            {/* Title Field */}
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="turning-point-title">Title</Label>
+              </div>
               <TextInput
-                id="add-character-input"
+                id="turning-point-title"
                 type="text"
-                value={newCharacter}
-                onChange={(e) => {
-                  setNewCharacter(e.target.value);
-                }}
-                onBlur={() => handleAddCharacter()}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleAddCharacter();
-                  }
-                }}
-                placeholder="Type character name..."
+                value={localTurningPoint.title}
+                onChange={(e) => handleFieldChange("title", e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
               />
+            </div>
 
-              {/* Auto-complete Dropdown */}
-              {showAutoComplete && filteredCharacters.length > 0 && (
-                <div
-                  data-testid="character-auto-complete"
-                  className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
-                >
-                  {filteredCharacters.map((character, index) => (
+            {/* Plot Line Field */}
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="turning-point-plotline">Plot Line</Label>
+              </div>
+              <TextInput
+                id="turning-point-plotline"
+                type="text"
+                value={localTurningPoint.plotLine}
+                onChange={(e) => handleFieldChange("plotLine", e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            {/* Notes Field */}
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="turning-point-notes">Notes</Label>
+              </div>
+              <Textarea
+                id="turning-point-notes"
+                value={localTurningPoint.notes}
+                onChange={(e) => handleFieldChange("notes", e.target.value)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                rows={4}
+              />
+            </div>
+
+            {/* Characters Involved */}
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="turning-point-characters">
+                  Characters Involved
+                </Label>
+              </div>
+              <div data-testid="characters-involved-list" className="mb-4">
+                {localTurningPoint.charactersInvolved.map(
+                  (character, index) => (
                     <div
                       key={index}
-                      className="cursor-pointer px-4 py-2 text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-                      onMouseDown={(e) => {
-                        // Prevent blur event from firing on the input
-                        e.preventDefault();
-                        handleSelectCharacter(character);
-                      }}
+                      data-testid={`character-${character}`}
+                      className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                     >
                       {character}
                     </div>
-                  ))}
-                </div>
-              )}
+                  ),
+                )}
+              </div>
 
-              {showAutoComplete && filteredCharacters.length === 0 && (
-                <div
-                  data-testid="character-auto-complete"
-                  className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
-                >
-                  <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                    No characters found
+              {/* Add Character Input */}
+              <div className="relative">
+                <Label htmlFor="add-character-input" className="mb-2 block">
+                  Add Character
+                </Label>
+                <TextInput
+                  id="add-character-input"
+                  type="text"
+                  value={newCharacter}
+                  onChange={(e) => {
+                    setNewCharacter(e.target.value);
+                  }}
+                  onBlur={() => handleAddCharacter()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddCharacter();
+                    }
+                  }}
+                  placeholder="Type character name..."
+                />
+
+                {/* Auto-complete Dropdown */}
+                {showAutoComplete && filteredCharacters.length > 0 && (
+                  <div
+                    data-testid="character-auto-complete"
+                    className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
+                  >
+                    {filteredCharacters.map((character, index) => (
+                      <div
+                        key={index}
+                        className="cursor-pointer px-4 py-2 text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
+                        onMouseDown={(e) => {
+                          // Prevent blur event from firing on the input
+                          e.preventDefault();
+                          handleSelectCharacter(character);
+                        }}
+                      >
+                        {character}
+                      </div>
+                    ))}
                   </div>
-                </div>
-              )}
+                )}
+
+                {showAutoComplete && filteredCharacters.length === 0 && (
+                  <div
+                    data-testid="character-auto-complete"
+                    className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
+                  >
+                    <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
+                      No characters found
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Plot Points */}
+            <div>
+              <div className="mb-2 block">
+                <Label htmlFor="turning-point-plotpoints">Plot Points</Label>
+              </div>
+              <div data-testid="plot-points-list" className="mb-4">
+                {localTurningPoint.plotPoints.map((plotPoint, index) => (
+                  <div
+                    key={index}
+                    data-testid={`plot-point-${plotPoint}`}
+                    className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+                  >
+                    {plotPoint}
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Plot Point Input */}
+              <div className="relative">
+                <Label htmlFor="add-plot-point-input" className="mb-2 block">
+                  Add Plot Point
+                </Label>
+                <TextInput
+                  id="add-plot-point-input"
+                  type="text"
+                  value={newPlotPoint}
+                  onChange={(e) => setNewPlotPoint(e.target.value)}
+                  onBlur={() => handleAddPlotPoint()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      handleAddPlotPoint();
+                    }
+                  }}
+                  placeholder="Type plot point..."
+                />
+              </div>
             </div>
           </div>
-
-          {/* Plot Points */}
-          <div>
-            <div className="mb-2 block">
-              <Label htmlFor="turning-point-plotpoints">Plot Points</Label>
-            </div>
-            <div data-testid="plot-points-list" className="mb-4">
-              {localTurningPoint.plotPoints.map((plotPoint, index) => (
-                <div
-                  key={index}
-                  data-testid={`plot-point-${plotPoint}`}
-                  className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+        </ModalBody>
+        <ModalFooter>
+          {turningPoint.id > 0 && (
+            <button
+              ref={deleteButtonRef}
+              data-testid="turning-point-delete-button"
+              aria-label="Delete turning point"
+              onClick={handleDeleteClick}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleDeleteClick();
+                }
+              }}
+              className="cursor-pointer text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            >
+              Delete
+            </button>
+          )}
+        </ModalFooter>
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirmation && (
+          <div
+            data-testid="delete-confirmation-backdrop"
+            className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black"
+            onClick={handleCancelDelete}
+          >
+            <div
+              data-testid="delete-confirmation-dialog"
+              role="dialog"
+              aria-label="Delete turning point confirmation"
+              className="mx-4 w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <p className="mb-4 text-gray-500 dark:text-gray-400">
+                Are you sure you want to delete this turning point?
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  data-testid="delete-cancel-button"
+                  aria-label="Cancel delete"
+                  onClick={handleCancelDelete}
+                  className="rounded bg-gray-300 px-4 py-2 text-gray-800 hover:bg-gray-400 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
                 >
-                  {plotPoint}
-                </div>
-              ))}
-            </div>
-
-            {/* Add Plot Point Input */}
-            <div className="relative">
-              <Label htmlFor="add-plot-point-input" className="mb-2 block">
-                Add Plot Point
-              </Label>
-              <TextInput
-                id="add-plot-point-input"
-                type="text"
-                value={newPlotPoint}
-                onChange={(e) => setNewPlotPoint(e.target.value)}
-                onBlur={() => handleAddPlotPoint()}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleAddPlotPoint();
-                  }
-                }}
-                placeholder="Type plot point..."
-              />
+                  Cancel
+                </button>
+                <button
+                  data-testid="delete-confirm-button"
+                  aria-label="Confirm delete"
+                  onClick={handleConfirmDelete}
+                  className="rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </ModalBody>
-    </Modal>
+        )}
+      </Modal>
+    </div>
   );
 }
