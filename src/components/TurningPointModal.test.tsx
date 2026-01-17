@@ -106,7 +106,11 @@ describe("TurningPointModal", () => {
   });
 
   describe("Event Handler Tests", () => {
-    it("should trigger save onBlur for title field", async () => {
+    it.each([
+      ["title", /title/i],
+      ["plot line", /plot line/i],
+      ["notes", /notes/i],
+    ])("should trigger save onBlur for %s field", async (_, labelRegex) => {
       const mockSave = vi.fn();
       renderWithProviders(
         <TurningPointModal
@@ -117,13 +121,17 @@ describe("TurningPointModal", () => {
         />,
       );
 
-      const titleInput = screen.getByLabelText(/title/i);
-      fireEvent.blur(titleInput);
+      const input = screen.getByLabelText(labelRegex);
+      fireEvent.blur(input);
 
       expect(mockSave).toHaveBeenCalledTimes(1);
     });
 
-    it("should trigger save onBlur for plotLine field", async () => {
+    it.each([
+      ["title", /title/i],
+      ["plot line", /plot line/i],
+      ["notes", /notes/i],
+    ])("should trigger save onKeyDown Enter for %s field", async (_, labelRegex) => {
       const mockSave = vi.fn();
       renderWithProviders(
         <TurningPointModal
@@ -134,76 +142,8 @@ describe("TurningPointModal", () => {
         />,
       );
 
-      const plotLineInput = screen.getByLabelText(/plot line/i);
-      fireEvent.blur(plotLineInput);
-
-      expect(mockSave).toHaveBeenCalledTimes(1);
-    });
-
-    it("should trigger save onBlur for notes field", async () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const notesInput = screen.getByLabelText(/notes/i);
-      fireEvent.blur(notesInput);
-
-      expect(mockSave).toHaveBeenCalledTimes(1);
-    });
-
-    it("should trigger save onKeyDown Enter for title field", async () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const titleInput = screen.getByLabelText(/title/i);
-      fireEvent.keyDown(titleInput, { key: "Enter", code: "Enter" });
-
-      expect(mockSave).toHaveBeenCalledTimes(1);
-    });
-
-    it("should trigger save onKeyDown Enter for plotLine field", async () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const plotLineInput = screen.getByLabelText(/plot line/i);
-      fireEvent.keyDown(plotLineInput, { key: "Enter", code: "Enter" });
-
-      expect(mockSave).toHaveBeenCalledTimes(1);
-    });
-
-    it("should trigger save onKeyDown Enter for notes field", async () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const notesInput = screen.getByLabelText(/notes/i);
-      fireEvent.keyDown(notesInput, { key: "Enter", code: "Enter" });
+      const input = screen.getByLabelText(labelRegex);
+      fireEvent.keyDown(input, { key: "Enter", code: "Enter" });
 
       expect(mockSave).toHaveBeenCalledTimes(1);
     });
@@ -227,7 +167,11 @@ describe("TurningPointModal", () => {
   });
 
   describe("Validation Tests", () => {
-    it("should enforce 100 character limit for title field", () => {
+    it.each([
+      ["title", /title/i, 100],
+      ["plot line", /plot line/i, 200],
+      ["notes", /notes/i, 1000],
+    ])("should enforce %s character limit for %s field", (_, labelRegex, limit) => {
       const mockSave = vi.fn();
       renderWithProviders(
         <TurningPointModal
@@ -238,56 +182,14 @@ describe("TurningPointModal", () => {
         />,
       );
 
-      const titleInput = screen.getByLabelText(/title/i);
-      const longTitle = "a".repeat(101);
+      const input = screen.getByLabelText(labelRegex);
+      const longValue = "a".repeat(limit + 1);
 
       // Set value directly to test maxLength attribute
-      fireEvent.change(titleInput, { target: { value: longTitle } });
+      fireEvent.change(input, { target: { value: longValue } });
 
-      // Should not exceed max length - the input should have max 100 chars
-      expect(titleInput).toHaveValue(longTitle.slice(0, 100));
-    });
-
-    it("should enforce 200 character limit for plotLine field", () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockEmptyTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const plotLineInput = screen.getByLabelText(/plot line/i);
-      const longPlotLine = "a".repeat(201);
-
-      // Set value directly to test maxLength attribute
-      fireEvent.change(plotLineInput, { target: { value: longPlotLine } });
-
-      // Should not exceed max length - the input should have max 200 chars
-      expect(plotLineInput).toHaveValue(longPlotLine.slice(0, 200));
-    });
-
-    it("should enforce 1000 character limit for notes field", () => {
-      const mockSave = vi.fn();
-      renderWithProviders(
-        <TurningPointModal
-          show={true}
-          turningPoint={mockEmptyTurningPoint}
-          onClose={() => {}}
-          onSave={mockSave}
-        />,
-      );
-
-      const notesInput = screen.getByLabelText(/notes/i);
-      const longNotes = "a".repeat(1001);
-
-      // Set value directly to test maxLength attribute
-      fireEvent.change(notesInput, { target: { value: longNotes } });
-
-      // Should not exceed max length - the input should have max 1000 chars
-      expect(notesInput).toHaveValue(longNotes.slice(0, 1000));
+      // Should not exceed max length
+      expect(input).toHaveValue(longValue.slice(0, limit));
     });
   });
 
