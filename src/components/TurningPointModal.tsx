@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteTurningPoint } from "../slices/adventureSlice";
 import TurningPointModalCharacters from "./TurningPointModalCharacters";
+import TurningPointModalPlotPoints from "./TurningPointModalPlotPoints";
 
 interface TurningPointModalProps {
   show: boolean;
@@ -29,7 +30,6 @@ export default function TurningPointModal({
   const dispatch = useDispatch();
   const [localTurningPoint, setLocalTurningPoint] =
     useState<TurningPoint>(turningPoint);
-  const [newPlotPoint, setNewPlotPoint] = useState("");
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -84,38 +84,6 @@ export default function TurningPointModal({
     if (e.key === "Enter") {
       handleSave();
     }
-  };
-
-  const handleAddPlotPoint = () => {
-    const trimmedPlotPoint = newPlotPoint.trim();
-
-    // Validate input
-    if (!trimmedPlotPoint) {
-      // Keep focus on input for correction
-      return;
-    }
-
-    // Check for duplicates
-    if (localTurningPoint.plotPoints.includes(trimmedPlotPoint)) {
-      setNewPlotPoint("");
-      return;
-    }
-
-    // Add plotPoint
-    const updatedPlotPoints = [
-      ...localTurningPoint.plotPoints,
-      trimmedPlotPoint,
-    ];
-    const updatedTurningPoint = {
-      ...localTurningPoint,
-      plotPoints: updatedPlotPoints,
-    };
-
-    setLocalTurningPoint(updatedTurningPoint);
-    setNewPlotPoint("");
-
-    // Save the updated turning point
-    onSave(updatedTurningPoint);
   };
 
   const handleDeleteClick = () => {
@@ -221,42 +189,17 @@ export default function TurningPointModal({
             />
 
             {/* Plot Points */}
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="turning-point-plotpoints">Plot Points</Label>
-              </div>
-              <div data-testid="plot-points-list" className="mb-4">
-                {localTurningPoint.plotPoints.map((plotPoint, index) => (
-                  <div
-                    key={index}
-                    data-testid={`plot-point-${plotPoint}`}
-                    className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                  >
-                    {plotPoint}
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Plot Point Input */}
-              <div className="relative">
-                <Label htmlFor="add-plot-point-input" className="mb-2 block">
-                  Add Plot Point
-                </Label>
-                <TextInput
-                  id="add-plot-point-input"
-                  type="text"
-                  value={newPlotPoint}
-                  onChange={(e) => setNewPlotPoint(e.target.value)}
-                  onBlur={() => handleAddPlotPoint()}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleAddPlotPoint();
-                    }
-                  }}
-                  placeholder="Type plot point..."
-                />
-              </div>
-            </div>
+            <TurningPointModalPlotPoints
+              plotPoints={localTurningPoint.plotPoints}
+              onSave={(updated) => {
+                const updatedTurningPoint = {
+                  ...localTurningPoint,
+                  plotPoints: updated.plotPoints,
+                };
+                setLocalTurningPoint(updatedTurningPoint);
+                onSave(updatedTurningPoint);
+              }}
+            />
           </div>
         </ModalBody>
         <ModalFooter>
