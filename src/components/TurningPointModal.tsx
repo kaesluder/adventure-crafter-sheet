@@ -11,6 +11,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteTurningPoint } from "../slices/adventureSlice";
+import TurningPointModalCharacters from "./TurningPointModalCharacters";
 
 interface TurningPointModalProps {
   show: boolean;
@@ -28,10 +29,7 @@ export default function TurningPointModal({
   const dispatch = useDispatch();
   const [localTurningPoint, setLocalTurningPoint] =
     useState<TurningPoint>(turningPoint);
-  const [newCharacter, setNewCharacter] = useState("");
   const [newPlotPoint, setNewPlotPoint] = useState("");
-  const [showAutoComplete, setShowAutoComplete] = useState(false);
-  const [filteredCharacters, setFilteredCharacters] = useState<string[]>([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -46,19 +44,6 @@ export default function TurningPointModal({
       );
     },
   );
-
-  // Filter characters for auto-complete
-  useEffect(() => {
-    if (newCharacter.length >= 2 && adventure?.characters) {
-      const filtered = adventure.characters.filter((character: string) =>
-        character.toLowerCase().includes(newCharacter.toLowerCase()),
-      );
-      setFilteredCharacters(filtered);
-      setShowAutoComplete(filtered.length > 0);
-    } else {
-      setShowAutoComplete(false);
-    }
-  }, [newCharacter, adventure?.characters]);
 
   const handleFieldChange = (
     field: keyof TurningPoint,
@@ -101,39 +86,6 @@ export default function TurningPointModal({
     }
   };
 
-  const handleAddCharacter = () => {
-    const trimmedCharacter = newCharacter.trim();
-
-    // Validate input
-    if (!trimmedCharacter) {
-      // Keep focus on input for correction
-      return;
-    }
-
-    // Check for duplicates
-    if (localTurningPoint.charactersInvolved.includes(trimmedCharacter)) {
-      setNewCharacter("");
-      return;
-    }
-
-    // Add character
-    const updatedCharacters = [
-      ...localTurningPoint.charactersInvolved,
-      trimmedCharacter,
-    ];
-    const updatedTurningPoint = {
-      ...localTurningPoint,
-      charactersInvolved: updatedCharacters,
-    };
-
-    setLocalTurningPoint(updatedTurningPoint);
-    setNewCharacter("");
-    setShowAutoComplete(false);
-
-    // Save the updated turning point
-    onSave(updatedTurningPoint);
-  };
-
   const handleAddPlotPoint = () => {
     const trimmedPlotPoint = newPlotPoint.trim();
 
@@ -161,39 +113,6 @@ export default function TurningPointModal({
 
     setLocalTurningPoint(updatedTurningPoint);
     setNewPlotPoint("");
-
-    // Save the updated turning point
-    onSave(updatedTurningPoint);
-  };
-
-  const handleSelectCharacter = (character: string) => {
-    const trimmedCharacter = character.trim();
-
-    // Validate input
-    if (!trimmedCharacter) {
-      return;
-    }
-
-    // Check for duplicates
-    if (localTurningPoint.charactersInvolved.includes(trimmedCharacter)) {
-      setNewCharacter("");
-      setShowAutoComplete(false);
-      return;
-    }
-
-    // Add character
-    const updatedCharacters = [
-      ...localTurningPoint.charactersInvolved,
-      trimmedCharacter,
-    ];
-    const updatedTurningPoint = {
-      ...localTurningPoint,
-      charactersInvolved: updatedCharacters,
-    };
-
-    setLocalTurningPoint(updatedTurningPoint);
-    setNewCharacter("");
-    setShowAutoComplete(false);
 
     // Save the updated turning point
     onSave(updatedTurningPoint);
@@ -289,81 +208,17 @@ export default function TurningPointModal({
             </div>
 
             {/* Characters Involved */}
-            <div>
-              <div className="mb-2 block">
-                <Label htmlFor="turning-point-characters">
-                  Characters Involved
-                </Label>
-              </div>
-              <div data-testid="characters-involved-list" className="mb-4">
-                {localTurningPoint.charactersInvolved.map(
-                  (character, index) => (
-                    <div
-                      key={index}
-                      data-testid={`character-${character}`}
-                      className="mr-2 mb-2 inline-block rounded bg-gray-200 px-2 py-1 whitespace-nowrap text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-                    >
-                      {character}
-                    </div>
-                  ),
-                )}
-              </div>
-
-              {/* Add Character Input */}
-              <div className="relative">
-                <Label htmlFor="add-character-input" className="mb-2 block">
-                  Add Character
-                </Label>
-                <TextInput
-                  id="add-character-input"
-                  type="text"
-                  value={newCharacter}
-                  onChange={(e) => {
-                    setNewCharacter(e.target.value);
-                  }}
-                  onBlur={() => handleAddCharacter()}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      handleAddCharacter();
-                    }
-                  }}
-                  placeholder="Type character name..."
-                />
-
-                {/* Auto-complete Dropdown */}
-                {showAutoComplete && filteredCharacters.length > 0 && (
-                  <div
-                    data-testid="character-auto-complete"
-                    className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
-                  >
-                    {filteredCharacters.map((character, index) => (
-                      <div
-                        key={index}
-                        className="cursor-pointer px-4 py-2 text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-700"
-                        onMouseDown={(e) => {
-                          // Prevent blur event from firing on the input
-                          e.preventDefault();
-                          handleSelectCharacter(character);
-                        }}
-                      >
-                        {character}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {showAutoComplete && filteredCharacters.length === 0 && (
-                  <div
-                    data-testid="character-auto-complete"
-                    className="absolute z-10 mt-1 w-full rounded-md border border-gray-300 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-800"
-                  >
-                    <div className="px-4 py-2 text-gray-500 dark:text-gray-400">
-                      No characters found
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <TurningPointModalCharacters
+              charactersInvolved={localTurningPoint.charactersInvolved}
+              onSave={(updated) => {
+                const updatedTurningPoint = {
+                  ...localTurningPoint,
+                  charactersInvolved: updated.charactersInvolved,
+                };
+                setLocalTurningPoint(updatedTurningPoint);
+                onSave(updatedTurningPoint);
+              }}
+            />
 
             {/* Plot Points */}
             <div>
