@@ -380,637 +380,606 @@ describe("TurningPointModal", () => {
     });
   });
 
-  describe("Plot Points Display Tests", () => {
-    describe("Test Case 1: View turning point plotPoints", () => {
-      const mockTurningPointWithPlotPoints: TurningPoint = {
-        id: 4,
-        title: "title",
-        notes: "notes",
-        plotLine: "plotLine",
-        charactersInvolved: [],
-        plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
-      };
+  describe("Plot Points", () => {
+    const mockTurningPointWithPlotPoints: TurningPoint = {
+      id: 4,
+      title: "title",
+      notes: "notes",
+      plotLine: "plotLine",
+      charactersInvolved: [],
+      plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
+    };
 
-      it("should display the correct list of plotPoints", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPointWithPlotPoints}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
+    const mockTurningPointWithExistingPlotPoint: TurningPoint = {
+      id: 5,
+      title: "title",
+      notes: "notes",
+      plotLine: "plotLine",
+      charactersInvolved: [],
+      plotPoints: ["Existing Plot Point"],
+    };
 
-        // Check that the plotPoints list is rendered
-        const plotPointsList = screen.getByTestId("plot-points-list");
-        expect(plotPointsList).toBeInTheDocument();
+    it("should display the correct list of plotPoints", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPointWithPlotPoints}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
 
-        // Check that all plotPoints are displayed
-        expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
-        expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
-        expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
-      });
+      // Check that the plotPoints list is rendered
+      const plotPointsList = screen.getByTestId("plot-points-list");
+      expect(plotPointsList).toBeInTheDocument();
 
-      it("should show the 'Add Plot Point' text input", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
-        expect(addPlotPointInput).toBeInTheDocument();
-        expect(addPlotPointInput).toBeEnabled();
-      });
+      // Check that all plotPoints are displayed
+      expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
+      expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
+      expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
     });
 
-    describe("Test Case 2: Add plotPoint to turning point", () => {
-      it("should add plotPoint by clicking elsewhere on the form", async () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
+    it("should show the 'Add Plot Point' text input", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
 
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
-
-        // Type a new plotPoint name
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "New Plot Point" },
-        });
-
-        // Click elsewhere to trigger addition
-        fireEvent.blur(addPlotPointInput);
-
-        // Verify that the new plotPoint appears in the plotPoints list
-        expect(screen.getByText("New Plot Point")).toBeInTheDocument();
-
-        // Check that the input field clears after successful addition
-        expect(addPlotPointInput).toHaveValue("");
-
-        // Verify save was called with updated plotPoints
-        expect(mockSave).toHaveBeenCalledWith(
-          expect.objectContaining({
-            plotPoints: ["New Plot Point"],
-          }),
-        );
-      });
-
-      it("should add plotPoint by pressing Enter key", async () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
-
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
-
-        // Type a new plotPoint name
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Another Plot Point" },
-        });
-
-        // Press Enter to trigger addition
-        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
-
-        // Verify that the new plotPoint appears in the plotPoints list
-        expect(screen.getByText("Another Plot Point")).toBeInTheDocument();
-
-        // Check that the input field clears after successful addition
-        expect(addPlotPointInput).toHaveValue("");
-
-        // Verify save was called with updated plotPoints
-        expect(mockSave).toHaveBeenCalledWith(
-          expect.objectContaining({
-            plotPoints: ["Another Plot Point"],
-          }),
-        );
-      });
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+      expect(addPlotPointInput).toBeInTheDocument();
+      expect(addPlotPointInput).toBeEnabled();
     });
 
-    describe("Test Case 3: Prevent duplicate plotPoints", () => {
-      const mockTurningPointWithPlotPoints: TurningPoint = {
-        id: 5,
-        title: "title",
-        notes: "notes",
-        plotLine: "plotLine",
-        charactersInvolved: [],
-        plotPoints: ["Existing Plot Point"],
-      };
+    it("should add plotPoint by clicking elsewhere on the form", async () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
 
-      it("should not add duplicate plotPoint", async () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPointWithPlotPoints}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
 
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
-
-        // Try to add a plotPoint that already exists
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Existing Plot Point" },
-        });
-
-        // Click elsewhere to trigger addition
-        fireEvent.blur(addPlotPointInput);
-
-        // Verify that the duplicate plotPoint is not added
-        const plotPointItems = screen.getAllByText("Existing Plot Point");
-        expect(plotPointItems).toHaveLength(1); // Only the original one
-
-        // Verify save was not called
-        expect(mockSave).not.toHaveBeenCalled();
+      // Type a new plotPoint name
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "New Plot Point" },
       });
+
+      // Click elsewhere to trigger addition
+      fireEvent.blur(addPlotPointInput);
+
+      // Verify that the new plotPoint appears in the plotPoints list
+      expect(screen.getByText("New Plot Point")).toBeInTheDocument();
+
+      // Check that the input field clears after successful addition
+      expect(addPlotPointInput).toHaveValue("");
+
+      // Verify save was called with updated plotPoints
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plotPoints: ["New Plot Point"],
+        }),
+      );
     });
 
-    describe("Test Case 4: Prevent whitespace-only strings", () => {
-      it("should not add whitespace-only strings", async () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
+    it("should add plotPoint by pressing Enter key", async () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
 
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
 
-        // Try to add only spaces
-        fireEvent.change(addPlotPointInput, { target: { value: "   " } });
-
-        // Trigger the blur event to test the validation
-        fireEvent.blur(addPlotPointInput);
-
-        // Verify that whitespace-only strings are not added
-        expect(screen.queryByText("   ")).not.toBeInTheDocument();
-
-        // Verify save was not called
-        expect(mockSave).not.toHaveBeenCalled();
+      // Type a new plotPoint name
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Another Plot Point" },
       });
+
+      // Press Enter to trigger addition
+      fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+      // Verify that the new plotPoint appears in the plotPoints list
+      expect(screen.getByText("Another Plot Point")).toBeInTheDocument();
+
+      // Check that the input field clears after successful addition
+      expect(addPlotPointInput).toHaveValue("");
+
+      // Verify save was called with updated plotPoints
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plotPoints: ["Another Plot Point"],
+        }),
+      );
     });
 
-    describe("Edge Cases", () => {
-      it("should handle plotPoints with special characters correctly", () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
+    it("should not add duplicate plotPoint", async () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPointWithExistingPlotPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
 
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
 
-        // Add plotPoint with special characters using fireEvent for more reliable testing
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Plot-Point-1" },
-        });
-
-        // Press Enter to trigger addition using fireEvent
-        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
-
-        // Verify that special characters are handled correctly
-        expect(screen.getByText("Plot-Point-1")).toBeInTheDocument();
-
-        expect(mockSave).toHaveBeenCalledWith(
-          expect.objectContaining({
-            plotPoints: ["Plot-Point-1"],
-          }),
-        );
+      // Try to add a plotPoint that already exists
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Existing Plot Point" },
       });
 
-      it("should handle quickly adding multiple plotPoints in succession", async () => {
-        const mockSave = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={mockSave}
-          />,
-        );
+      // Click elsewhere to trigger addition
+      fireEvent.blur(addPlotPointInput);
 
-        const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+      // Verify that the duplicate plotPoint is not added
+      const plotPointItems = screen.getAllByText("Existing Plot Point");
+      expect(plotPointItems).toHaveLength(1); // Only the original one
 
-        // Quickly add multiple plotPoints
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Plot Point 1" },
-        });
-        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+      // Verify save was not called
+      expect(mockSave).not.toHaveBeenCalled();
+    });
 
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Plot Point 2" },
-        });
-        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+    it("should not add whitespace-only strings", async () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
 
-        fireEvent.change(addPlotPointInput, {
-          target: { value: "Plot Point 3" },
-        });
-        fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
 
-        // Verify that all plotPoints are added correctly
-        expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
-        expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
-        expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
+      // Try to add only spaces
+      fireEvent.change(addPlotPointInput, { target: { value: "   " } });
 
-        // Verify save was called multiple times with correct data
-        expect(mockSave).toHaveBeenCalledTimes(3);
+      // Trigger the blur event to test the validation
+      fireEvent.blur(addPlotPointInput);
 
-        // Check final state
-        expect(mockSave).toHaveBeenLastCalledWith(
-          expect.objectContaining({
-            plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
-          }),
-        );
+      // Verify that whitespace-only strings are not added
+      expect(screen.queryByText("   ")).not.toBeInTheDocument();
+
+      // Verify save was not called
+      expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    it("should handle plotPoints with special characters correctly", () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
+
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+      // Add plotPoint with special characters using fireEvent for more reliable testing
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Plot-Point-1" },
       });
+
+      // Press Enter to trigger addition using fireEvent
+      fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+      // Verify that special characters are handled correctly
+      expect(screen.getByText("Plot-Point-1")).toBeInTheDocument();
+
+      expect(mockSave).toHaveBeenCalledWith(
+        expect.objectContaining({
+          plotPoints: ["Plot-Point-1"],
+        }),
+      );
+    });
+
+    it("should handle quickly adding multiple plotPoints in succession", async () => {
+      const mockSave = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={mockSave}
+        />,
+      );
+
+      const addPlotPointInput = screen.getByLabelText(/add plot point/i);
+
+      // Quickly add multiple plotPoints
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Plot Point 1" },
+      });
+      fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Plot Point 2" },
+      });
+      fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+      fireEvent.change(addPlotPointInput, {
+        target: { value: "Plot Point 3" },
+      });
+      fireEvent.keyDown(addPlotPointInput, { key: "Enter", code: "Enter" });
+
+      // Verify that all plotPoints are added correctly
+      expect(screen.getByText("Plot Point 1")).toBeInTheDocument();
+      expect(screen.getByText("Plot Point 2")).toBeInTheDocument();
+      expect(screen.getByText("Plot Point 3")).toBeInTheDocument();
+
+      // Verify save was called multiple times with correct data
+      expect(mockSave).toHaveBeenCalledTimes(3);
+
+      // Check final state
+      expect(mockSave).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          plotPoints: ["Plot Point 1", "Plot Point 2", "Plot Point 3"],
+        }),
+      );
     });
   });
 
-  // =============================================
-  // Delete Functionality Tests
-  // =============================================
   describe("Delete Functionality", () => {
-    describe("Test Case 1: View turning point with Delete button", () => {
-      it("should display Delete button with proper accessibility when viewing an existing turning point", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
+    it("should display Delete button with proper accessibility when viewing an existing turning point", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        expect(deleteButton).toBeInTheDocument();
-        expect(deleteButton).toBeEnabled();
-        expect(deleteButton).toHaveAttribute(
-          "aria-label",
-          "Delete turning point",
-        );
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toBeEnabled();
+      expect(deleteButton).toHaveAttribute(
+        "aria-label",
+        "Delete turning point",
+      );
 
-        // Verify keyboard accessibility
-        deleteButton.focus();
-        fireEvent.keyDown(deleteButton, { key: "Enter", code: "Enter" });
-        expect(
-          screen.getByTestId("delete-confirmation-dialog"),
-        ).toBeInTheDocument();
-      });
+      // Verify keyboard accessibility
+      deleteButton.focus();
+      fireEvent.keyDown(deleteButton, { key: "Enter", code: "Enter" });
+      expect(
+        screen.getByTestId("delete-confirmation-dialog"),
+      ).toBeInTheDocument();
     });
 
-    describe("Test Case 2: Delete turning point confirmation dialog", () => {
-      it("should show confirmation dialog with all required elements when Delete button is clicked", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
+    it("should show confirmation dialog with all required elements when Delete button is clicked", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
 
-        // Verify dialog appears
-        const confirmationDialog = screen.getByTestId(
-          "delete-confirmation-dialog",
-        );
-        expect(confirmationDialog).toBeInTheDocument();
+      // Verify dialog appears
+      const confirmationDialog = screen.getByTestId(
+        "delete-confirmation-dialog",
+      );
+      expect(confirmationDialog).toBeInTheDocument();
 
-        // Verify buttons are present
-        expect(screen.getByTestId("delete-confirm-button")).toBeInTheDocument();
-        expect(screen.getByTestId("delete-cancel-button")).toBeInTheDocument();
+      // Verify buttons are present
+      expect(screen.getByTestId("delete-confirm-button")).toBeInTheDocument();
+      expect(screen.getByTestId("delete-cancel-button")).toBeInTheDocument();
 
-        // Verify warning message
-        expect(
-          screen.getByText(
-            /Are you sure you want to delete this turning point?/i,
-          ),
-        ).toBeInTheDocument();
-      });
+      // Verify warning message
+      expect(
+        screen.getByText(
+          /Are you sure you want to delete this turning point?/i,
+        ),
+      ).toBeInTheDocument();
     });
 
-    describe("Test Case 3: Confirm delete turning point", () => {
-      it("should dispatch deleteTurningPoint action when deletion is confirmed", () => {
-        const mockAdventureWithTurningPoint: Adventure = {
-          ...mockAdventure,
-          turningPoints: [mockTurningPoint],
-        };
+    it("should dispatch deleteTurningPoint action when deletion is confirmed", () => {
+      const mockAdventureWithTurningPoint: Adventure = {
+        ...mockAdventure,
+        turningPoints: [mockTurningPoint],
+      };
 
-        const { store } = renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-          {
-            preloadedState: {
-              adventure: {
-                adventures: [mockAdventureWithTurningPoint],
-                selectedAdventureId: 1,
-              },
+      const { store } = renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+        {
+          preloadedState: {
+            adventure: {
+              adventures: [mockAdventureWithTurningPoint],
+              selectedAdventureId: 1,
             },
           },
-        );
+        },
+      );
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
 
-        const confirmButton = screen.getByTestId("delete-confirm-button");
-        fireEvent.click(confirmButton);
+      const confirmButton = screen.getByTestId("delete-confirm-button");
+      fireEvent.click(confirmButton);
 
-        // Verify the turning point was removed from the Redux store
-        const state = store.getState();
-        const adventure = state.adventure.adventures.find((a) => a.id === 1);
-        expect(adventure?.turningPoints).toHaveLength(0);
-      });
-
-      it("should close the TurningPointModal after successful deletion", () => {
-        const mockOnClose = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={mockOnClose}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
-        const confirmButton = screen.getByTestId("delete-confirm-button");
-        fireEvent.click(confirmButton);
-
-        expect(mockOnClose).toHaveBeenCalledTimes(1);
-      });
-
-      // Skipped: This test fails due to modal rendering simulation issues in the test environment.
-      // The modal closing behavior works correctly in the browser but the test environment doesn't
-      // properly simulate the Flowbite Modal's show/hide behavior after deletion is confirmed.
-      it.skip("should close the modal (return to Adventure View)", () => {
-        const mockOnClose = vi.fn();
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={mockOnClose}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
-        const confirmButton = screen.getByTestId("delete-confirm-button");
-        fireEvent.click(confirmButton);
-
-        // Modal should no longer be visible
-        expect(
-          screen.queryByTestId("turning-point-modal"),
-        ).not.toBeInTheDocument();
-      });
+      // Verify the turning point was removed from the Redux store
+      const state = store.getState();
+      const adventure = state.adventure.adventures.find((a) => a.id === 1);
+      expect(adventure?.turningPoints).toHaveLength(0);
     });
 
-    describe("Test Case 4: Cancel deletion", () => {
-      it("should close the confirmation dialog when Cancel button is clicked", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
+    it("should close the TurningPointModal after successful deletion", () => {
+      const mockOnClose = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={mockOnClose}
+          onSave={() => {}}
+        />,
+      );
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
 
-        const cancelButton = screen.getByTestId("delete-cancel-button");
-        fireEvent.click(cancelButton);
+      const confirmButton = screen.getByTestId("delete-confirm-button");
+      fireEvent.click(confirmButton);
 
-        // Confirmation dialog should be closed
-        expect(
-          screen.queryByTestId("delete-confirmation-dialog"),
-        ).not.toBeInTheDocument();
-      });
+      expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
 
-    describe("Test Case 5: Multiple delete attempts", () => {
-      it("should maintain proper state through multiple cancel/retry cycles", () => {
-        const mockAdventureWithTurningPoint: Adventure = {
-          ...mockAdventure,
-          turningPoints: [mockTurningPoint],
-        };
+    // Skipped: This test fails due to modal rendering simulation issues in the test environment.
+    // The modal closing behavior works correctly in the browser but the test environment doesn't
+    // properly simulate the Flowbite Modal's show/hide behavior after deletion is confirmed.
+    it.skip("should close the modal (return to Adventure View)", () => {
+      const mockOnClose = vi.fn();
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={mockOnClose}
+          onSave={() => {}}
+        />,
+      );
 
-        const { store } = renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-          {
-            preloadedState: {
-              adventure: {
-                adventures: [mockAdventureWithTurningPoint],
-                selectedAdventureId: 1,
-              },
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      const confirmButton = screen.getByTestId("delete-confirm-button");
+      fireEvent.click(confirmButton);
+
+      // Modal should no longer be visible
+      expect(
+        screen.queryByTestId("turning-point-modal"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("should close the confirmation dialog when Cancel button is clicked", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      const cancelButton = screen.getByTestId("delete-cancel-button");
+      fireEvent.click(cancelButton);
+
+      // Confirmation dialog should be closed
+      expect(
+        screen.queryByTestId("delete-confirmation-dialog"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("should maintain proper state through multiple cancel/retry cycles", () => {
+      const mockAdventureWithTurningPoint: Adventure = {
+        ...mockAdventure,
+        turningPoints: [mockTurningPoint],
+      };
+
+      const { store } = renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+        {
+          preloadedState: {
+            adventure: {
+              adventures: [mockAdventureWithTurningPoint],
+              selectedAdventureId: 1,
             },
           },
-        );
+        },
+      );
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
 
-        // Cancel several times, then confirm
-        for (let i = 0; i < 3; i++) {
-          fireEvent.click(deleteButton);
-          const cancelButton = screen.getByTestId("delete-cancel-button");
-          fireEvent.click(cancelButton);
-        }
-
-        // Now confirm
+      // Cancel several times, then confirm
+      for (let i = 0; i < 3; i++) {
         fireEvent.click(deleteButton);
-        const confirmButton = screen.getByTestId("delete-confirm-button");
-        fireEvent.click(confirmButton);
-
-        // Verify the turning point was removed from the Redux store
-        const state = store.getState();
-        const adventure = state.adventure.adventures.find((a) => a.id === 1);
-        expect(adventure?.turningPoints).toHaveLength(0);
-      });
-    });
-
-    describe("Test Case 6: Close confirmation dialog via backdrop", () => {
-      it("should close confirmation dialog when clicking outside the dialog (on backdrop)", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
-        // Click on the backdrop (outside the dialog)
-        const backdrop = screen.getByTestId("delete-confirmation-backdrop");
-        fireEvent.click(backdrop);
-
-        // Confirmation dialog should be closed
-        expect(
-          screen.queryByTestId("delete-confirmation-dialog"),
-        ).not.toBeInTheDocument();
-      });
-    });
-
-    describe("Test Case 7: Close confirmation dialog via Escape key", () => {
-      it("should close confirmation dialog when Escape key is pressed", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
-        // Press Escape key
-        fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
-
-        // Confirmation dialog should be closed
-        expect(
-          screen.queryByTestId("delete-confirmation-dialog"),
-        ).not.toBeInTheDocument();
-      });
-    });
-
-    describe("Test Case 8: New turning points", () => {
-      it("should not show Delete button for new turning points with ID = 0", () => {
-        const newTurningPoint: TurningPoint = {
-          id: 0,
-          title: "New Turning Point",
-          notes: "",
-          plotLine: "",
-          charactersInvolved: [],
-          plotPoints: [],
-        };
-
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={newTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        expect(
-          screen.queryByTestId("turning-point-delete-button"),
-        ).not.toBeInTheDocument();
-      });
-    });
-
-    describe("Test Case 9: Confirmation dialog accessibility", () => {
-      it("should have proper ARIA attributes for confirmation dialog and buttons", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
-        // Verify dialog accessibility
-        const dialog = screen.getByTestId("delete-confirmation-dialog");
-        expect(dialog).toHaveAttribute("role", "dialog");
-        expect(dialog).toHaveAttribute(
-          "aria-label",
-          "Delete turning point confirmation",
-        );
-
-        // Verify button accessibility
-        const confirmButton = screen.getByTestId("delete-confirm-button");
-        const cancelButton = screen.getByTestId("delete-cancel-button");
-        expect(confirmButton).toHaveAttribute("aria-label", "Confirm delete");
-        expect(cancelButton).toHaveAttribute("aria-label", "Cancel delete");
-      });
-
-      // Skipped: This test fails due to focus management simulation issues in the test environment.
-      // The focus restoration works correctly in the browser but jsdom doesn't properly simulate
-      // the focus behavior when dealing with nested modals and conditional rendering.
-      it.skip("should return focus to Delete button when dialog is cancelled", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
-
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
-
         const cancelButton = screen.getByTestId("delete-cancel-button");
         fireEvent.click(cancelButton);
+      }
 
-        // Focus should return to the delete button
-        expect(deleteButton).toHaveFocus();
-      });
+      // Now confirm
+      fireEvent.click(deleteButton);
+      const confirmButton = screen.getByTestId("delete-confirm-button");
+      fireEvent.click(confirmButton);
 
-      // Skipped: This test fails due to focus management simulation issues in the test environment.
-      // The focus restoration works correctly in the browser but jsdom doesn't properly simulate
-      // the focus behavior when dealing with nested modals and conditional rendering.
-      it.skip("should return focus to Delete button when dialog is closed via Escape", () => {
-        renderWithProviders(
-          <TurningPointModal
-            show={true}
-            turningPoint={mockTurningPoint}
-            onClose={() => {}}
-            onSave={() => {}}
-          />,
-        );
+      // Verify the turning point was removed from the Redux store
+      const state = store.getState();
+      const adventure = state.adventure.adventures.find((a) => a.id === 1);
+      expect(adventure?.turningPoints).toHaveLength(0);
+    });
 
-        const deleteButton = screen.getByTestId("turning-point-delete-button");
-        fireEvent.click(deleteButton);
+    it("should close confirmation dialog when clicking outside the dialog (on backdrop)", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
 
-        fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
 
-        // Focus should return to the delete button
-        expect(deleteButton).toHaveFocus();
-      });
+      // Click on the backdrop (outside the dialog)
+      const backdrop = screen.getByTestId("delete-confirmation-backdrop");
+      fireEvent.click(backdrop);
+
+      // Confirmation dialog should be closed
+      expect(
+        screen.queryByTestId("delete-confirmation-dialog"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("should close confirmation dialog when Escape key is pressed", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      // Press Escape key
+      fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+
+      // Confirmation dialog should be closed
+      expect(
+        screen.queryByTestId("delete-confirmation-dialog"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("should not show Delete button for new turning points with ID = 0", () => {
+      const newTurningPoint: TurningPoint = {
+        id: 0,
+        title: "New Turning Point",
+        notes: "",
+        plotLine: "",
+        charactersInvolved: [],
+        plotPoints: [],
+      };
+
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={newTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      expect(
+        screen.queryByTestId("turning-point-delete-button"),
+      ).not.toBeInTheDocument();
+    });
+
+    it("should have proper ARIA attributes for confirmation dialog and buttons", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      // Verify dialog accessibility
+      const dialog = screen.getByTestId("delete-confirmation-dialog");
+      expect(dialog).toHaveAttribute("role", "dialog");
+      expect(dialog).toHaveAttribute(
+        "aria-label",
+        "Delete turning point confirmation",
+      );
+
+      // Verify button accessibility
+      const confirmButton = screen.getByTestId("delete-confirm-button");
+      const cancelButton = screen.getByTestId("delete-cancel-button");
+      expect(confirmButton).toHaveAttribute("aria-label", "Confirm delete");
+      expect(cancelButton).toHaveAttribute("aria-label", "Cancel delete");
+    });
+
+    // Skipped: This test fails due to focus management simulation issues in the test environment.
+    // The focus restoration works correctly in the browser but jsdom doesn't properly simulate
+    // the focus behavior when dealing with nested modals and conditional rendering.
+    it.skip("should return focus to Delete button when dialog is cancelled", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      const cancelButton = screen.getByTestId("delete-cancel-button");
+      fireEvent.click(cancelButton);
+
+      // Focus should return to the delete button
+      expect(deleteButton).toHaveFocus();
+    });
+
+    // Skipped: This test fails due to focus management simulation issues in the test environment.
+    // The focus restoration works correctly in the browser but jsdom doesn't properly simulate
+    // the focus behavior when dealing with nested modals and conditional rendering.
+    it.skip("should return focus to Delete button when dialog is closed via Escape", () => {
+      renderWithProviders(
+        <TurningPointModal
+          show={true}
+          turningPoint={mockTurningPoint}
+          onClose={() => {}}
+          onSave={() => {}}
+        />,
+      );
+
+      const deleteButton = screen.getByTestId("turning-point-delete-button");
+      fireEvent.click(deleteButton);
+
+      fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+
+      // Focus should return to the delete button
+      expect(deleteButton).toHaveFocus();
     });
   });
 });
